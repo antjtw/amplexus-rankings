@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Implexus Powerlifting — Rankings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo-wrap">
+        <img src="logo.png" alt="Implexus Powerlifting" class="logo" onerror="this.style.display='none'; document.querySelector('.logo-text').style.display='block';" />
+        <span class="logo-text" style="display:none;">IMPLEXUS</span>
+      </div>
+      <div class="header-meta">
+        <h1 class="site-title">GYM RANKINGS</h1>
+        <p class="site-subtitle">Ranked by DOTS &mdash; Best Competition Performance</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="table-wrap">
+      <div class="table-header">
+        <span class="col-rank">#</span>
+        <span class="col-name">Athlete</span>
+        <span class="col-lift">SQ</span>
+        <span class="col-lift">BP</span>
+        <span class="col-lift">DL</span>
+        <span class="col-total">Total</span>
+        <span class="col-dots">DOTS</span>
+      </div>
+
+      <div class="leaderboard" id="leaderboard">
+        <!-- Rows injected by JS -->
+      </div>
+    </div>
+
+    <p class="footnote">
+      DOTS score normalises across bodyweights &amp; sex — the truest cross-comparison in powerlifting.
+      All figures in kg. Data via <a href="https://www.openpowerlifting.org" target="_blank" rel="noopener">OpenPowerlifting</a>.
+    </p>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

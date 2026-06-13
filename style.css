@@ -1,0 +1,457 @@
+/* ============================================================
+   Implexus Powerlifting — Rankings
+   Mobile-first. Dark mode. Barlow Condensed + Inter.
+   ============================================================ */
+
+/* --- Tokens --- */
+:root {
+  --bg:          #111213;
+  --bg-card:     #18191c;
+  --border:      #252628;
+  --accent:      #e8401c;
+  --accent-dim:  rgba(232, 64, 28, 0.13);
+  --gold:        #f5c518;
+  --silver:      #a8b2bc;
+  --bronze:      #cd7f32;
+  --text-primary:#e8e8e8;
+  --text-muted:  #7a7d85;
+  --text-dim:    #3f4148;
+  --font-display:'Barlow Condensed', sans-serif;
+  --font-body:   'Inter', sans-serif;
+  --radius:      5px;
+}
+
+/* --- Reset --- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.4;
+  min-height: 100dvh;
+  padding-bottom: 60px;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.site-header {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 14px 14px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+}
+
+.header-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo {
+  height: 44px;
+  width: auto;
+  display: block;
+}
+
+.logo-text {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 28px;
+  letter-spacing: 0.1em;
+  color: var(--text-primary);
+}
+
+.header-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.site-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: 0.07em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.site-subtitle {
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 18px 0 0;
+}
+
+.table-wrap {
+  padding: 0 10px;
+}
+
+/* ============================================================
+   TABLE HEADER (desktop only)
+   ============================================================ */
+.table-header {
+  display: none;
+}
+
+/* ============================================================
+   LEADERBOARD
+   ============================================================ */
+.leaderboard {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Row container */
+.lb-row {
+  position: relative;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  animation: rowIn 0.35s ease both;
+  transition: background 0.12s;
+}
+
+.lb-row:hover {
+  background: #1c1d21;
+}
+
+/* Left accent bar */
+.lb-row::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent);
+  opacity: 0.35;
+}
+
+.lb-row[data-rank="1"]::before { opacity: 1; }
+.lb-row[data-rank="2"]::before { opacity: 0.75; }
+.lb-row[data-rank="3"]::before { opacity: 0.55; }
+
+/* Background bar - gradient proportional to dots */
+.bar-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--accent-dim) 0%, transparent 100%);
+  pointer-events: none;
+  border-radius: var(--radius);
+}
+
+.row-first .bar-bg {
+  background: linear-gradient(90deg, rgba(232,64,28,0.2) 0%, transparent 100%);
+}
+
+/* ============================================================
+   ROW INNER — MOBILE LAYOUT (default)
+   ============================================================ */
+.row-inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  grid-template-rows: auto auto;
+  gap: 6px 8px;
+  padding: 10px 12px 10px 13px;
+  align-items: start;
+}
+
+.col-rank {
+  grid-row: 1 / 3;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--text-dim);
+  align-self: center;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.rank-gold   { color: var(--gold); }
+.rank-silver { color: var(--silver); }
+.rank-bronze { color: var(--bronze); }
+
+.col-name-wrap {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* Mobile stats row */
+.stats-mobile {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Desktop stat columns — hidden on mobile */
+.desktop-only {
+  display: none;
+}
+
+/* ============================================================
+   NAME + META
+   ============================================================ */
+.name-line {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.athlete-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.12s;
+}
+
+.athlete-name:hover {
+  color: var(--accent);
+}
+
+.ig-link {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  transition: color 0.12s;
+}
+
+.ig-link:hover { color: #e1306c; }
+
+.ig-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.comp-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+
+.comp-name {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.comp-date {
+  font-size: 10.5px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   MOBILE STAT ITEMS
+   ============================================================ */
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+}
+
+.stat-label {
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  line-height: 1;
+}
+
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.stat-value.dots-val {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.stat-value.dots-val.dots-highlight {
+  color: var(--accent);
+}
+
+.sep {
+  width: 1px;
+  height: 22px;
+  background: var(--border);
+  align-self: center;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   FOOTNOTE
+   ============================================================ */
+.footnote {
+  padding: 20px 18px 0;
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.65;
+}
+
+.footnote a {
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ============================================================
+   ENTRANCE ANIMATION
+   ============================================================ */
+@keyframes rowIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lb-row { animation: none; }
+}
+
+/* ============================================================
+   DESKTOP — >= 600px
+   ============================================================ */
+@media (min-width: 600px) {
+  /* Show table header */
+  .table-header {
+    display: grid;
+    grid-template-columns: 42px 1fr 50px 50px 50px 62px 72px;
+    align-items: center;
+    padding: 0 14px 10px 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+    gap: 8px;
+  }
+
+  .table-header > span {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .table-header .col-lift,
+  .table-header .col-total,
+  .table-header .col-dots { text-align: right; }
+
+  /* Row switches to single-line grid */
+  .row-inner {
+    grid-template-columns: 42px 1fr 50px 50px 50px 62px 72px;
+    grid-template-rows: auto;
+    align-items: center;
+    padding: 11px 14px 11px 16px;
+    gap: 8px;
+  }
+
+  .col-rank {
+    grid-row: 1;
+    font-size: 22px;
+    align-self: center;
+  }
+
+  .col-name-wrap {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  /* Show desktop stat columns */
+  .desktop-only {
+    display: block;
+  }
+
+  .col-lift {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 600;
+    text-align: right;
+    color: var(--text-primary);
+  }
+
+  .col-total {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 700;
+    text-align: right;
+    color: var(--text-primary);
+  }
+
+  .col-dots {
+    font-family: var(--font-display);
+    font-size: 19px;
+    font-weight: 800;
+    text-align: right;
+    color: var(--text-muted);
+  }
+
+  .dots-highlight { color: var(--accent); }
+
+  /* Hide mobile stats */
+  .mobile-only { display: none !important; }
+
+  .comp-name { max-width: 200px; }
+
+  .site-header { padding: 18px 20px 16px; }
+  .site-title { font-size: 24px; }
+  .logo { height: 50px; }
+  .table-wrap { padding: 0 16px; }
+
+  .row-first .athlete-name { font-size: 19px; }
+  .row-first .col-dots { font-size: 21px; }
+}
+
+@media (min-width: 780px) {
+  .site-title { font-size: 28px; }
+  .athlete-name { font-size: 18px; }
+  .col-dots { font-size: 20px; }
+  .comp-name { max-width: 260px; }
+}
