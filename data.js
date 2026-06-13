@@ -133,13 +133,13 @@ const LIFTERS = [
   {
     name: "Kai Richardson",
     slug: "kairichardson",
-    ig: null,
+    ig: "koach_kai",
     squat: 207.5, bench: 145, deadlift: 300, total: 637.5, dots: 450.21,
   },
   {
-    name: "Peter King",
+    name: "Dr. Peter King",
     slug: "peterking1",
-    ig: null,
+    ig: "kingpete__",
     squat: 220, bench: 155, deadlift: 270, total: 630, dots: 420.14,
   },
 
@@ -179,7 +179,7 @@ const LIFTERS = [
     legacy: true,
   },
   {
-    name: "Samriddha Ranjan",
+    name: "Dr. Samriddha Ranjan",
     slug: "samriddharanjan",
     ig: null,
     squat: 220, bench: 127.5, deadlift: 242.5, total: 582.5, dots: 408.87,
