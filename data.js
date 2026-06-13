@@ -77,6 +77,7 @@ const LIFTERS = [
     slug: "leohannan",
     ig: "leo.hannan",
     squat: 200, bench: 127.5, deadlift: 250, total: 572.5, dots: 388.07,
+    legacy: true,
   },
   {
     name: "Toby Solomon",
@@ -107,6 +108,7 @@ const LIFTERS = [
     slug: "samlusher",
     ig: null,
     squat: 205, bench: 142.5, deadlift: 215, total: 562.5, dots: 326.22,
+    legacy: true,
   },
   {
     name: "Jodie Barnsley",
