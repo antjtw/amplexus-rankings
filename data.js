@@ -7,7 +7,7 @@
 const LIFTERS = [
   // ── ACTIVE MEMBERS ──────────────────────────────────────────
   {
-    name: "Wylie Sung",
+    name: "Wylie Du Sung",
     slug: "wyliesung",
     ig: "wyliesung28",
     squat: 337.5, bench: 200, deadlift: 357.5, total: 890, dots: 562.53,
@@ -19,7 +19,7 @@ const LIFTERS = [
     squat: 350, bench: 202.5, deadlift: 355, total: 902.5, dots: 535.63,
   },
   {
-    name: "Gen Collins",
+    name: "Jurassic Gen",
     slug: "genevievecollins",
     ig: "swole_mami",
     squat: 177.5, bench: 97.5, deadlift: 192.5, total: 467.5, dots: 466.15,
