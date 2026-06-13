@@ -157,4 +157,33 @@ const LIFTERS = [
     squat: 220, bench: 127.5, deadlift: 242.5, total: 582.5, dots: 408.87,
     legacy: true,
   },
+  {
+    name: "Annie Burns",
+    slug: "anneburns",
+    ig: null,
+    squat: 170.5, bench: 100.5, deadlift: 190.5, total: 461.5, dots: 502.99,
+    legacy: true,
+  },
+  {
+    name: "Max Guo",
+    slug: "maxguo",
+    ig: null,
+    squat: 255, bench: 177.5, deadlift: 287.5, total: 720, dots: 488.39,
+    legacy: true,
+  },
+  {
+    name: "Vic Hart",
+    slug: "victoriahart",
+    ig: null,
+    squat: 175, bench: 102.5, deadlift: 172.5, total: 450, dots: 488.26,
+    legacy: true,
+  },
+  {
+    name: "Josh Hinchcliffe",
+    slug: "joshhinchcliffe",
+    ig: "josh_hinchcliffe_pl",
+    squat: 232.5, bench: 160, deadlift: 280, total: 670, dots: 456.45,
+    legacy: true,
+  },
+
 ];

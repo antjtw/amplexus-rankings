@@ -13,6 +13,8 @@
 
   <header class="site-header">
     <div class="header-inner">
+
+      <!-- Left: logo + subtitle -->
       <div class="logo-wrap">
         <svg width="159" height="20" viewBox="0 0 159 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo-svg" aria-label="Implexus">
           <path d="M43.5261 19.9761C44.6825 19.9761 45.6133 19 45.6133 17.8024V3.98802C45.6302 3.98802 45.7189 3.98789 45.8676 3.98765C47.0959 3.98572 52.418 3.97734 55.1361 3.98802C56.4139 3.99401 57.2639 4.89222 57.206 6.12575C57.154 7.22156 56.3041 8.01198 55.1188 8.01198H49.2559C48.2094 8.08982 47.3826 8.9521 47.319 10.0359V12C47.7762 12.001 48.2335 12.0023 48.691 12.0037C50.9817 12.0103 53.2757 12.017 55.5698 11.982C58.6688 11.9401 61.236 9.00599 61.0626 5.79641C60.8717 2.40719 58.4665 0.0179641 55.1708 0H43.8788C42.7166 0 41.7799 0.976048 41.7799 2.17365V19.9761H43.5261Z" fill="currentColor"/>
@@ -29,20 +31,41 @@
         <p class="site-subtitle">Ranked by DOTS &mdash; Personal Bests</p>
       </div>
 
-      <nav class="header-controls">
-        <div class="sort-group">
-          <span class="controls-label">Sort</span>
-          <button class="sort-btn sort-active" data-sort="dots">DOTS</button>
-          <button class="sort-btn" data-sort="squat">SQ</button>
-          <button class="sort-btn" data-sort="bench">BP</button>
-          <button class="sort-btn" data-sort="deadlift">DL</button>
-          <button class="sort-btn" data-sort="total">Total</button>
-        </div>
-        <div class="toggle-group">
-          <button id="legacy-toggle" class="ctrl-btn">Show Legacy</button>
-          <button id="theme-toggle" class="ctrl-btn">Light</button>
-        </div>
-      </nav>
+      <!-- Right: controls -->
+      <div class="header-right">
+        <button id="legacy-toggle" class="ctrl-btn">Show Legacy</button>
+
+        <!-- Theme toggle switch -->
+        <button
+          id="theme-toggle"
+          class="theme-switch"
+          role="switch"
+          aria-checked="true"
+          aria-label="Toggle light/dark mode"
+        >
+          <span class="switch-track">
+            <span class="switch-thumb">
+              <!-- Moon icon -->
+              <svg class="switch-icon icon-moon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M13.5 9.5A5.5 5.5 0 016.5 2.5a5.5 5.5 0 100 11 5.5 5.5 0 007-4z" fill="currentColor"/>
+              </svg>
+              <!-- Sun icon -->
+              <svg class="switch-icon icon-sun" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="8" cy="8" r="3" fill="currentColor"/>
+                <line x1="8" y1="1" x2="8" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="8" y1="13" x2="8" y2="15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="1" y1="8" x2="3" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="13" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="3.05" y1="3.05" x2="4.46" y2="4.46" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="11.54" y1="11.54" x2="12.95" y2="12.95" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="12.95" y1="3.05" x2="11.54" y2="4.46" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="4.46" y1="11.54" x2="3.05" y2="12.95" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </span>
+          </span>
+        </button>
+      </div>
+
     </div>
   </header>
 
@@ -51,11 +74,11 @@
       <div class="table-header">
         <span class="col-rank">#</span>
         <span class="col-name">Athlete</span>
-        <span class="col-lift th-sort" data-sort="squat">SQ</span>
-        <span class="col-lift th-sort" data-sort="bench">BP</span>
-        <span class="col-lift th-sort" data-sort="deadlift">DL</span>
-        <span class="col-total th-sort" data-sort="total">Total</span>
-        <span class="col-dots th-sort th-active" data-sort="dots">DOTS</span>
+        <span class="col-lift">SQ</span>
+        <span class="col-lift">BP</span>
+        <span class="col-lift">DL</span>
+        <span class="col-total">Total</span>
+        <span class="col-dots">DOTS</span>
       </div>
       <div class="leaderboard" id="leaderboard"></div>
     </div>

@@ -1,11 +1,8 @@
 // Implexus Powerlifting — Leaderboard Renderer
 
 (function () {
-  // ── State ────────────────────────────────────────────────────
   let showLegacy = false;
-  let sortKey = "dots"; // dots | squat | bench | deadlift
 
-  // ── Helpers ──────────────────────────────────────────────────
   function fmt(val) {
     return val % 1 === 0 ? val.toFixed(0) : val.toFixed(1);
   }
@@ -24,47 +21,30 @@
     </a>`;
   }
 
-  function statItem(label, value, extraClass, isSort) {
-    const activeClass = isSort ? " stat-active" : "";
-    return `<div class="stat-item${activeClass}">
+  function statItem(label, value, extraClass) {
+    return `<div class="stat-item">
       <span class="stat-label">${label}</span>
       <span class="stat-value${extraClass ? " " + extraClass : ""}">${value}</span>
     </div>`;
   }
 
-  // ── Sorted + filtered list ────────────────────────────────────
   function getList() {
-    let list = showLegacy ? [...LIFTERS] : LIFTERS.filter(l => !l.legacy);
-    list.sort((a, b) => b[sortKey] - a[sortKey]);
-    return list;
+    const list = showLegacy ? [...LIFTERS] : LIFTERS.filter(l => !l.legacy);
+    return list.sort((a, b) => b.dots - a.dots);
   }
 
-  // ── Bar width for background glow ────────────────────────────
-  function barWidth(val, min, max) {
-    const pct = (val - min) / (max - min || 1);
+  function barWidth(dots, min, max) {
+    const pct = (dots - min) / (max - min || 1);
     return 30 + pct * 70;
   }
 
-  // ── Render a single row ───────────────────────────────────────
   function renderRow(lifter, rank, min, max) {
     const isTop3 = rank <= 3;
     const rankClass = rank === 1 ? "rank-gold" : rank === 2 ? "rank-silver" : rank === 3 ? "rank-bronze" : "";
-    const rowClass = [
-      rank === 1 ? "row-first" : "",
-      lifter.legacy ? "row-legacy" : "",
-    ].filter(Boolean).join(" ");
-    const width = barWidth(lifter[sortKey], min, max);
+    const rowClass = [rank === 1 ? "row-first" : "", lifter.legacy ? "row-legacy" : ""].filter(Boolean).join(" ");
+    const width = barWidth(lifter.dots, min, max);
     const dotsHL = isTop3 ? "dots-highlight" : "";
-    const legacyBadge = lifter.legacy
-      ? `<span class="legacy-badge" title="Former member">Legacy</span>`
-      : "";
-
-    // Which column is active for desktop highlight
-    const sq   = sortKey === "squat";
-    const bp   = sortKey === "bench";
-    const dl   = sortKey === "deadlift";
-    const tot  = sortKey === "total";
-    const dots = sortKey === "dots";
+    const legacyBadge = lifter.legacy ? `<span class="legacy-badge">Legacy</span>` : "";
 
     return `
     <article class="lb-row ${rowClass}" data-rank="${rank}">
@@ -78,78 +58,62 @@
             ${igLink(lifter.ig)}
           </div>
         </div>
-        <span class="col-lift desktop-only${sq ? " col-active" : ""}">${fmt(lifter.squat)}</span>
-        <span class="col-lift desktop-only${bp ? " col-active" : ""}">${fmt(lifter.bench)}</span>
-        <span class="col-lift desktop-only${dl ? " col-active" : ""}">${fmt(lifter.deadlift)}</span>
-        <span class="col-total desktop-only${tot ? " col-active" : ""}">${fmt(lifter.total)}</span>
-        <span class="col-dots desktop-only ${dotsHL}${dots ? " col-active" : ""}">${fmtDots(lifter.dots)}</span>
+        <span class="col-lift desktop-only">${fmt(lifter.squat)}</span>
+        <span class="col-lift desktop-only">${fmt(lifter.bench)}</span>
+        <span class="col-lift desktop-only">${fmt(lifter.deadlift)}</span>
+        <span class="col-total desktop-only">${fmt(lifter.total)}</span>
+        <span class="col-dots desktop-only ${dotsHL}">${fmtDots(lifter.dots)}</span>
         <div class="stats-mobile mobile-only">
-          ${statItem("SQ",    fmt(lifter.squat),        "",            sq)}
+          ${statItem("SQ",    fmt(lifter.squat))}
           <div class="sep"></div>
-          ${statItem("BP",    fmt(lifter.bench),        "",            bp)}
+          ${statItem("BP",    fmt(lifter.bench))}
           <div class="sep"></div>
-          ${statItem("DL",    fmt(lifter.deadlift),     "",            dl)}
+          ${statItem("DL",    fmt(lifter.deadlift))}
           <div class="sep"></div>
-          ${statItem("Total", fmt(lifter.total),        "",            tot)}
+          ${statItem("Total", fmt(lifter.total))}
           <div class="sep"></div>
-          ${statItem("DOTS",  fmtDots(lifter.dots),     "dots-val " + dotsHL, dots)}
+          ${statItem("DOTS",  fmtDots(lifter.dots), "dots-val " + dotsHL)}
         </div>
       </div>
     </article>`;
   }
 
-  // ── Render full leaderboard ───────────────────────────────────
   function render() {
     const container = document.getElementById("leaderboard");
     if (!container) return;
-
     const list = getList();
-    const vals = list.map(l => l[sortKey]);
-    const min = Math.min(...vals);
-    const max = Math.max(...vals);
-
+    const dots = list.map(l => l.dots);
+    const min = Math.min(...dots), max = Math.max(...dots);
     container.innerHTML = list.map((l, i) => renderRow(l, i + 1, min, max)).join("");
-
-    // Stagger animation
     container.querySelectorAll(".lb-row").forEach((row, i) => {
       row.style.animationDelay = `${i * 35}ms`;
     });
-
-    // Sync sort button states
-    document.querySelectorAll(".sort-btn").forEach(btn => {
-      btn.classList.toggle("sort-active", btn.dataset.sort === sortKey);
-    });
-
-    // Highlight active desktop header cell
-    document.querySelectorAll(".th-sort").forEach(th => {
-      th.classList.toggle("th-active", th.dataset.sort === sortKey);
-    });
   }
 
-  // ── Theme toggle ─────────────────────────────────────────────
+  // ── Theme ─────────────────────────────────────────────────────
   function initTheme() {
     const root = document.documentElement;
     const btn  = document.getElementById("theme-toggle");
     if (!btn) return;
 
-    // Resolve saved preference or system default
     const saved = localStorage.getItem("implexus-theme");
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const isDark = saved ? saved === "dark" : prefersDark;
 
     root.dataset.theme = isDark ? "dark" : "light";
-    btn.textContent = isDark ? "Light" : "Dark";
+    btn.setAttribute("aria-checked", isDark ? "true" : "false");
 
     btn.addEventListener("click", () => {
       const nowDark = root.dataset.theme === "dark";
-      root.dataset.theme = nowDark ? "light" : "dark";
-      btn.textContent = nowDark ? "Dark" : "Light";
-      localStorage.setItem("implexus-theme", nowDark ? "light" : "dark");
+      const next = nowDark ? "light" : "dark";
+      root.dataset.theme = next;
+      btn.setAttribute("aria-checked", nowDark ? "false" : "true");
+      localStorage.setItem("implexus-theme", next);
     });
   }
 
-  // ── Legacy toggle ─────────────────────────────────────────────
-  function initLegacyToggle() {
+  // ── Legacy ────────────────────────────────────────────────────
+  function initLegacy() {
     const btn = document.getElementById("legacy-toggle");
     if (!btn) return;
     btn.addEventListener("click", () => {
@@ -160,27 +124,13 @@
     });
   }
 
-  // ── Sort buttons ──────────────────────────────────────────────
-  function initSort() {
-    document.querySelectorAll("[data-sort]").forEach(el => {
-      el.addEventListener("click", () => {
-        sortKey = el.dataset.sort;
-        render();
-      });
-    });
-  }
-
-  // ── Boot ─────────────────────────────────────────────────────
   function init() {
     initTheme();
-    initLegacyToggle();
-    initSort();
+    initLegacy();
     render();
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
-  }
+  document.readyState === "loading"
+    ? document.addEventListener("DOMContentLoaded", init)
+    : init();
 })();
