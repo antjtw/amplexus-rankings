@@ -106,7 +106,7 @@ const LIFTERS = [
   {
     name: "Sam Lusher",
     slug: "samlusher",
-    ig: null,
+    ig: "lush_sa94",
     squat: 205, bench: 142.5, deadlift: 215, total: 562.5, dots: 326.22,
     legacy: true,
   },
