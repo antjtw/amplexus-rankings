@@ -1,69 +1,111 @@
 /* ============================================================
    Implexus Powerlifting — Rankings
-   Mobile-first. Dark mode. Yellow accent #FFD500.
+   Dual theme (dark default, light toggle). Yellow accent.
+   Mobile-first. Barlow Condensed + Inter.
    ============================================================ */
 
-:root {
-  --bg:          #111213;
-  --bg-card:     #18191c;
-  --border:      #252628;
-  --accent:      #FFD500;
-  --accent-dim:  rgba(255, 213, 0, 0.08);
-  --accent-dim2: rgba(255, 213, 0, 0.18);
-  --gold:        #FFD500;
-  --silver:      #a8b2bc;
-  --bronze:      #cd7f32;
-  --text-primary:#e8e8e8;
-  --text-muted:  #7a7d85;
-  --text-dim:    #3f4148;
-  --font-display:'Barlow Condensed', sans-serif;
-  --font-body:   'Inter', sans-serif;
-  --radius:      5px;
+/* ── Dark theme tokens ───────────────────────────────────── */
+:root,
+[data-theme="dark"] {
+  --bg:           #111213;
+  --bg-card:      #18191c;
+  --bg-card-hover:#1c1d21;
+  --border:       #252628;
+  --accent:       #FFD500;
+  --accent-dim:   rgba(255,213,0,0.08);
+  --accent-dim2:  rgba(255,213,0,0.18);
+  --gold:         #FFD500;
+  --silver:       #a8b2bc;
+  --bronze:       #cd7f32;
+  --text-primary: #e8e8e8;
+  --text-muted:   #7a7d85;
+  --text-dim:     #3f4148;
+  --logo-fill:    white;
+  --legacy-bg:    rgba(255,213,0,0.06);
+  --legacy-border:rgba(255,213,0,0.2);
+  --ctrl-bg:      #222326;
+  --ctrl-border:  #2e2f33;
+  --ctrl-text:    #9a9da6;
+  --ctrl-hover:   #2a2b2f;
+  --active-bg:    rgba(255,213,0,0.12);
+  --active-text:  #FFD500;
 }
 
+/* ── Light theme tokens ──────────────────────────────────── */
+[data-theme="light"] {
+  --bg:           #f4f4f2;
+  --bg-card:      #ffffff;
+  --bg-card-hover:#f9f9f7;
+  --border:       #e0e0dc;
+  --accent:       #c9a800;
+  --accent-dim:   rgba(201,168,0,0.07);
+  --accent-dim2:  rgba(201,168,0,0.14);
+  --gold:         #b8960a;
+  --silver:       #707880;
+  --bronze:       #9a5e1a;
+  --text-primary: #1a1a1a;
+  --text-muted:   #5a5d66;
+  --text-dim:     #a0a3ac;
+  --logo-fill:    #1a1a1a;
+  --legacy-bg:    rgba(201,168,0,0.05);
+  --legacy-border:rgba(201,168,0,0.25);
+  --ctrl-bg:      #ebebе8;
+  --ctrl-bg:      #eaeae7;
+  --ctrl-border:  #d4d4d0;
+  --ctrl-text:    #6a6d76;
+  --ctrl-hover:   #e0e0dc;
+  --active-bg:    rgba(201,168,0,0.12);
+  --active-text:  #b8960a;
+}
+
+/* ── Reset ───────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-text-size-adjust: 100%; }
 
 body {
   background: var(--bg);
   color: var(--text-primary);
-  font-family: var(--font-body);
+  font-family: 'Inter', sans-serif;
   font-size: 14px;
   line-height: 1.4;
   min-height: 100dvh;
   padding-bottom: 60px;
+  transition: background 0.2s, color 0.2s;
 }
 
 a { color: inherit; text-decoration: none; }
 
-/* ============================================================
-   HEADER
-   ============================================================ */
+/* ── Header ──────────────────────────────────────────────── */
 .site-header {
   background: var(--bg-card);
   border-bottom: 1px solid var(--border);
-  padding: 20px 16px 16px;
+  padding: 14px 12px 12px;
   position: sticky;
   top: 0;
   z-index: 10;
+  transition: background 0.2s, border-color 0.2s;
 }
 
 .header-inner {
   max-width: 900px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .logo-wrap {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
+  gap: 5px;
 }
 
 .logo-svg {
   height: 20px;
   width: auto;
   display: block;
+  color: var(--logo-fill);
+  transition: color 0.2s;
 }
 
 .site-subtitle {
@@ -72,28 +114,92 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: 0.07em;
   text-transform: uppercase;
   font-weight: 500;
-  font-family: var(--font-body);
 }
 
-/* ============================================================
-   LAYOUT
-   ============================================================ */
+/* ── Controls row ────────────────────────────────────────── */
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.controls-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.sort-group,
+.toggle-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sort-group {
+  background: var(--ctrl-bg);
+  border: 1px solid var(--ctrl-border);
+  border-radius: 6px;
+  padding: 3px 6px 3px 8px;
+  gap: 2px;
+}
+
+.sort-btn,
+.ctrl-btn {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: none;
+  border: none;
+  color: var(--ctrl-text);
+  cursor: pointer;
+  padding: 3px 7px;
+  border-radius: 4px;
+  transition: background 0.12s, color 0.12s;
+  white-space: nowrap;
+}
+
+.sort-btn:hover,
+.ctrl-btn:hover {
+  background: var(--ctrl-hover);
+  color: var(--text-primary);
+}
+
+.sort-btn.sort-active {
+  background: var(--active-bg);
+  color: var(--active-text);
+}
+
+.ctrl-btn {
+  background: var(--ctrl-bg);
+  border: 1px solid var(--ctrl-border);
+  color: var(--ctrl-text);
+}
+
+.ctrl-btn.legacy-active {
+  background: var(--active-bg);
+  color: var(--active-text);
+  border-color: var(--accent);
+}
+
+/* ── Main layout ─────────────────────────────────────────── */
 main {
   max-width: 900px;
   margin: 0 auto;
-  padding: 18px 0 0;
+  padding: 16px 0 0;
 }
 
 .table-wrap { padding: 0 10px; }
 
-/* ============================================================
-   TABLE HEADER (desktop only)
-   ============================================================ */
+/* ── Table header (desktop only) ─────────────────────────── */
 .table-header { display: none; }
 
-/* ============================================================
-   LEADERBOARD
-   ============================================================ */
+/* ── Leaderboard ─────────────────────────────────────────── */
 .leaderboard {
   display: flex;
   flex-direction: column;
@@ -103,13 +209,13 @@ main {
 .lb-row {
   position: relative;
   background: var(--bg-card);
-  border-radius: var(--radius);
+  border-radius: 5px;
   overflow: hidden;
   animation: rowIn 0.35s ease both;
   transition: background 0.12s;
 }
 
-.lb-row:hover { background: #1c1d21; }
+.lb-row:hover { background: var(--bg-card-hover); }
 
 /* Left accent bar */
 .lb-row::before {
@@ -125,22 +231,30 @@ main {
 .lb-row[data-rank="2"]::before { opacity: 0.65; }
 .lb-row[data-rank="3"]::before { opacity: 0.45; }
 
-/* Background glow bar */
+/* Background glow */
 .bar-bg {
   position: absolute;
   inset: 0;
   background: linear-gradient(90deg, var(--accent-dim) 0%, transparent 100%);
   pointer-events: none;
-  border-radius: var(--radius);
+  border-radius: 5px;
 }
 
 .row-first .bar-bg {
   background: linear-gradient(90deg, var(--accent-dim2) 0%, transparent 100%);
 }
 
-/* ============================================================
-   ROW INNER — MOBILE (default)
-   ============================================================ */
+/* Legacy row */
+.row-legacy {
+  opacity: 0.8;
+}
+
+.row-legacy::before {
+  background: var(--text-dim);
+  opacity: 0.4;
+}
+
+/* ── Row inner — mobile ───────────────────────────────────── */
 .row-inner {
   position: relative;
   display: grid;
@@ -153,7 +267,7 @@ main {
 
 .col-rank {
   grid-row: 1 / 3;
-  font-family: var(--font-display);
+  font-family: 'Barlow Condensed', sans-serif;
   font-weight: 900;
   font-size: 20px;
   line-height: 1;
@@ -167,17 +281,12 @@ main {
 .rank-bronze { color: var(--bronze); }
 
 .col-name-wrap {
-  grid-column: 2;
-  grid-row: 1;
+  grid-column: 2; grid-row: 1;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
 }
 
 .stats-mobile {
-  grid-column: 2;
-  grid-row: 2;
+  grid-column: 2; grid-row: 2;
   display: flex;
   gap: 10px;
   align-items: center;
@@ -186,9 +295,7 @@ main {
 
 .desktop-only { display: none; }
 
-/* ============================================================
-   NAME + META
-   ============================================================ */
+/* ── Name line ───────────────────────────────────────────── */
 .name-line {
   display: flex;
   align-items: center;
@@ -197,7 +304,7 @@ main {
 }
 
 .athlete-name {
-  font-family: var(--font-display);
+  font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;
   font-size: 17px;
   letter-spacing: 0.02em;
@@ -218,18 +325,26 @@ main {
 }
 
 .ig-link:hover { color: #e1306c; }
-
 .ig-icon { width: 14px; height: 14px; }
 
+/* Legacy badge */
+.legacy-badge {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 5px;
+  border-radius: 3px;
+  background: var(--legacy-bg);
+  color: var(--text-muted);
+  border: 1px solid var(--legacy-border);
+  flex-shrink: 0;
+}
 
-
-/* ============================================================
-   MOBILE STAT ITEMS
-   ============================================================ */
+/* ── Mobile stat items ───────────────────────────────────── */
 .stat-item {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   gap: 1px;
 }
 
@@ -243,7 +358,7 @@ main {
 }
 
 .stat-value {
-  font-family: var(--font-display);
+  font-family: 'Barlow Condensed', sans-serif;
   font-size: 15px;
   font-weight: 600;
   color: var(--text-primary);
@@ -258,6 +373,10 @@ main {
 
 .stat-value.dots-val.dots-highlight { color: var(--accent); }
 
+/* Active sort stat highlight */
+.stat-item.stat-active .stat-label { color: var(--accent); opacity: 0.8; }
+.stat-item.stat-active .stat-value { color: var(--accent); }
+
 .sep {
   width: 1px;
   height: 22px;
@@ -266,11 +385,9 @@ main {
   flex-shrink: 0;
 }
 
-/* ============================================================
-   FOOTNOTE
-   ============================================================ */
+/* ── Footnote ────────────────────────────────────────────── */
 .footnote {
-  padding: 20px 18px 0;
+  padding: 18px 18px 0;
   font-size: 11px;
   color: var(--text-dim);
   line-height: 1.65;
@@ -282,9 +399,7 @@ main {
   text-underline-offset: 2px;
 }
 
-/* ============================================================
-   ANIMATION
-   ============================================================ */
+/* ── Animation ───────────────────────────────────────────── */
 @keyframes rowIn {
   from { opacity: 0; transform: translateY(5px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -294,13 +409,22 @@ main {
   .lb-row { animation: none; }
 }
 
-/* ============================================================
-   DESKTOP — >= 600px
-   ============================================================ */
+/* ── Desktop — >= 600px ──────────────────────────────────── */
 @media (min-width: 600px) {
   .logo-svg { height: 24px; }
 
-  .site-header { padding: 22px 20px 18px; }
+  .site-header { padding: 18px 20px 14px; }
+
+  .header-inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .logo-wrap { gap: 6px; }
+
+  .header-controls { flex-wrap: nowrap; }
 
   .table-header {
     display: grid;
@@ -313,13 +437,22 @@ main {
   }
 
   .table-header > span {
-    font-family: var(--font-display);
+    font-family: 'Barlow Condensed', sans-serif;
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--text-dim);
+    cursor: default;
   }
+
+  .th-sort {
+    cursor: pointer;
+    transition: color 0.12s;
+  }
+
+  .th-sort:hover { color: var(--text-muted); }
+  .th-sort.th-active { color: var(--accent); }
 
   .table-header .col-lift,
   .table-header .col-total,
@@ -333,45 +466,48 @@ main {
     gap: 8px;
   }
 
-  .col-rank {
-    grid-row: 1;
-    font-size: 22px;
-    align-self: center;
-  }
-
+  .col-rank { grid-row: 1; font-size: 22px; }
   .col-name-wrap { grid-column: 2; grid-row: 1; }
 
   .desktop-only { display: block; }
 
   .col-lift {
-    font-family: var(--font-display);
+    font-family: 'Barlow Condensed', sans-serif;
     font-size: 17px;
     font-weight: 600;
     text-align: right;
     color: var(--text-primary);
+    transition: color 0.12s;
   }
 
   .col-total {
-    font-family: var(--font-display);
+    font-family: 'Barlow Condensed', sans-serif;
     font-size: 17px;
     font-weight: 700;
     text-align: right;
+    color: var(--text-primary);
+    transition: color 0.12s;
   }
 
   .col-dots {
-    font-family: var(--font-display);
+    font-family: 'Barlow Condensed', sans-serif;
     font-size: 19px;
     font-weight: 800;
     text-align: right;
     color: var(--text-muted);
+    transition: color 0.12s;
   }
 
   .dots-highlight { color: var(--accent); }
 
+  /* Active sort column highlight */
+  .col-active {
+    color: var(--accent) !important;
+  }
+
   .mobile-only { display: none !important; }
 
   .table-wrap { padding: 0 16px; }
-
   .row-first .athlete-name { font-size: 19px; }
   .row-first .col-dots { font-size: 21px; }
 }
