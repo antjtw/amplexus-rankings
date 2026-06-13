@@ -416,6 +416,13 @@ main {
 
 .footnote a { color: var(--text-muted); text-decoration: underline; text-underline-offset: 2px; }
 
+.built-by {
+  padding: 10px 18px 0;
+  font-size: 11px;
+  color: var(--text-dim);
+  font-family: 'Inter', sans-serif;
+}
+
 /* ── Animation ───────────────────────────────────────────── */
 @keyframes rowIn {
   from { opacity: 0; transform: translateY(5px); }
