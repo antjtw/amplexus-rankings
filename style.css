@@ -109,7 +109,7 @@ a { color: inherit; text-decoration: none; }
 .logo-wrap {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 8px;
   flex-shrink: 0;
   align-items: flex-start;
 }
