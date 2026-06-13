@@ -130,9 +130,28 @@ const LIFTERS = [
     squat: 160, bench: 82.5, deadlift: 180, total: 422.5, dots: 245.91,
   },
 
+  {
+    name: "Kai Richardson",
+    slug: "kairichardson",
+    ig: null,
+    squat: 207.5, bench: 145, deadlift: 300, total: 637.5, dots: 450.21,
+  },
+  {
+    name: "Peter King",
+    slug: "peterking1",
+    ig: null,
+    squat: 220, bench: 155, deadlift: 270, total: 630, dots: 420.14,
+  },
+
   // ── LEGACY MEMBERS ──────────────────────────────────────────
   {
-    name: "Gerry-Lee Pierre",
+    name: "Chris Onuoha",
+    slug: "chrisonuoha",
+    ig: "chris_onu",
+    squat: 280, bench: 150, deadlift: 340, total: 760, dots: 487.65,
+    legacy: true,
+  },
+  {
     slug: "gerryleepierre",
     ig: "gerryleepierre",
     squat: 305, bench: 182.5, deadlift: 305, total: 785, dots: 483.49,
