@@ -1,13 +1,12 @@
 // Implexus Powerlifting — Leaderboard Data
 // Sorted by best DOTS score from any competition result.
 // Squat/Bench/Deadlift shown are from the same best-DOTS meet.
-// ig: null means no handle provided yet — update when known.
 
 const LIFTERS = [
   {
     name: "Wylie Sung",
     slug: "wyliesung",
-    ig: null,
+    ig: "wyliesung28",
     squat: 337.5,
     bench: 200,
     deadlift: 352.5,
@@ -19,7 +18,7 @@ const LIFTERS = [
   {
     name: "Mike Jones",
     slug: "mikejones1",
-    ig: null,
+    ig: "mikejoneswigan",
     squat: 345,
     bench: 202.5,
     deadlift: 355,
@@ -31,7 +30,7 @@ const LIFTERS = [
   {
     name: "Gen Collins",
     slug: "genevievecollins",
-    ig: null,
+    ig: "swole_mami",
     squat: 177.5,
     bench: 97.5,
     deadlift: 192.5,
@@ -43,7 +42,7 @@ const LIFTERS = [
   {
     name: "Chris Jennings",
     slug: "chrisjennings",
-    ig: null,
+    ig: "chris_implexus",
     squat: 202.5,
     bench: 140,
     deadlift: 245,
@@ -55,7 +54,7 @@ const LIFTERS = [
   {
     name: "Ant White",
     slug: "anthonywhite1",
-    ig: null,
+    ig: "shred.kemer",
     squat: 250,
     bench: 137.5,
     deadlift: 270,
@@ -67,7 +66,7 @@ const LIFTERS = [
   {
     name: "Nick Johnstone",
     slug: "nickjohnstone",
-    ig: null,
+    ig: "njfullpower",
     squat: 245,
     bench: 180,
     deadlift: 242.5,
@@ -79,7 +78,7 @@ const LIFTERS = [
   {
     name: "Talia Firth",
     slug: "taliafirth",
-    ig: null,
+    ig: "talsssssx",
     squat: 177.5,
     bench: 102.5,
     deadlift: 185,
@@ -103,7 +102,7 @@ const LIFTERS = [
   {
     name: "Will Webb",
     slug: "williamwebb1",
-    ig: null,
+    ig: "willwebbpower",
     squat: 252.5,
     bench: 117.5,
     deadlift: 252.5,
@@ -115,7 +114,7 @@ const LIFTERS = [
   {
     name: "Ash Keeble",
     slug: "ashlingkeeble",
-    ig: null,
+    ig: "ashlinglifts",
     squat: 145,
     bench: 85,
     deadlift: 160,
@@ -139,7 +138,7 @@ const LIFTERS = [
   {
     name: "Toby Solomon",
     slug: "tobysolomon",
-    ig: null,
+    ig: "toby_solomon_",
     squat: 182.5,
     bench: 127.5,
     deadlift: 230,
@@ -151,7 +150,7 @@ const LIFTERS = [
   {
     name: "Finn Davis",
     slug: "finndavis",
-    ig: null,
+    ig: "finndavispl",
     squat: 190,
     bench: 120,
     deadlift: 215,
@@ -163,7 +162,7 @@ const LIFTERS = [
   {
     name: "Matt Anderson",
     slug: "matthewanderson2",
-    ig: null,
+    ig: "mattslifts",
     squat: 160,
     bench: 110,
     deadlift: 215,
@@ -175,7 +174,7 @@ const LIFTERS = [
   {
     name: "Owen Crisp",
     slug: "owencrisp",
-    ig: null,
+    ig: "owen_crisp",
     squat: 160,
     bench: 100,
     deadlift: 202.5,
