@@ -20,7 +20,6 @@
   --text-primary:   #e8e8e8;
   --text-muted:     #7a7d85;
   --text-dim:       #3f4148;
-  --logo-fill:      white;
   --legacy-bg:      rgba(255,213,0,0.06);
   --legacy-border:  rgba(255,213,0,0.2);
   --ctrl-bg:        #222326;
@@ -52,7 +51,6 @@
   --text-primary:   #1a1a1a;
   --text-muted:     #5a5d66;
   --text-dim:       #b0b3bc;
-  --logo-fill:      #1a1a1a;
   --legacy-bg:      rgba(201,168,0,0.05);
   --legacy-border:  rgba(201,168,0,0.25);
   --ctrl-bg:        #eaeae7;
@@ -90,7 +88,7 @@ a { color: inherit; text-decoration: none; }
 .site-header {
   background: var(--bg-card);
   border-bottom: 1px solid var(--border);
-  padding: 14px 14px 12px;
+  padding: 14px 14px 12px 0;  /* zero left — logo sits flush */
   position: sticky;
   top: 0;
   z-index: 10;
@@ -104,9 +102,10 @@ a { color: inherit; text-decoration: none; }
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  padding-right: 4px; /* nudge switch away from edge */
 }
 
-/* ── Logo block (always left) ────────────────────────────── */
+/* ── Logo block (flush left) ─────────────────────────────── */
 .logo-wrap {
   display: flex;
   flex-direction: column;
@@ -114,12 +113,18 @@ a { color: inherit; text-decoration: none; }
   flex-shrink: 0;
 }
 
-.logo-svg {
+.logo-img {
   height: 20px;
   width: auto;
   display: block;
-  color: var(--logo-fill);
-  transition: color 0.2s;
+  /* invert for light mode */
+  filter: none;
+  transition: filter 0.2s;
+}
+
+[data-theme="light"] .logo-img {
+  /* white paths → dark */
+  filter: invert(1) brightness(0.15);
 }
 
 .site-subtitle {
@@ -129,17 +134,19 @@ a { color: inherit; text-decoration: none; }
   text-transform: uppercase;
   font-weight: 500;
   white-space: nowrap;
+  padding-left: 0;
 }
 
-/* ── Right controls ──────────────────────────────────────── */
-.header-right {
+/* ── Legacy strip (between header and table) ─────────────── */
+.legacy-strip {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 10px 10px 0;
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
 }
 
-/* Legacy text button */
+/* Legacy / ctrl button */
 .ctrl-btn {
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 12px;
@@ -237,7 +244,7 @@ a { color: inherit; text-decoration: none; }
 main {
   max-width: 900px;
   margin: 0 auto;
-  padding: 16px 0 0;
+  padding: 0;
 }
 
 .table-wrap { padding: 0 10px; }
@@ -417,8 +424,9 @@ main {
 
 /* ── Desktop >= 600px ────────────────────────────────────── */
 @media (min-width: 600px) {
-  .site-header { padding: 18px 20px 14px; }
-  .logo-svg { height: 24px; }
+  .site-header { padding: 18px 20px 14px 0; }
+  .logo-img { height: 24px; }
+  .legacy-strip { padding: 14px 16px 0; }
 
   .table-header {
     display: grid;
