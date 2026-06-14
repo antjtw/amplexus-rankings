@@ -152,6 +152,20 @@ const LIFTERS = [
     legacy: true,
   },
   {
+    name: "Alex Shortland",
+    slug: "alexshortland",
+    ig: "alex.shortland",
+    squat: 240, bench: 155, deadlift: 270, total: 665, dots: 383.80,
+    legacy: true,
+  },
+  {
+    name: "Kelly Shortland",
+    slug: "kellybroadbent",
+    ig: null,
+    squat: 105, bench: 47.5, deadlift: 150, total: 295, dots: 307.61,
+    legacy: true,
+  },
+  {
     name: "Rory Turnbull",
     slug: "roryturnbull",
     ig: "rpturnbull",
