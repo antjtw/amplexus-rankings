@@ -668,6 +668,34 @@ main {
   font-style: italic;
 }
 
+/* Conceptual opponent — dash instead of a score */
+.dyn-dots-concept {
+  color: rgba(255,255,255,0.25) !important;
+}
+
+/* Image opponent (e.g. Chris's lost deadlift) */
+.dyn-fighter-img-wrap {
+  width: clamp(140px, 22vw, 320px);
+  aspect-ratio: 1 / 1;
+  border-radius: clamp(10px, 1.6vw, 22px);
+  overflow: hidden;
+  border: 2px solid rgba(255,213,0,0.35);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  margin-bottom: 1vh;
+}
+
+.dyn-fighter-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Team fighter (Toby & Matt) */
+.dyn-fighter-team .dyn-fighter-name {
+  color: #FFD500;
+}
+
 .dyn-caption {
   font-family: 'Inter', sans-serif;
   font-size: clamp(13px, 1.8vw, 24px);

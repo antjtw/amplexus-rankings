@@ -158,7 +158,7 @@ const LIFTERS = [
     fed: "EPA", equip: "Raw", bodyweight: "76.9",
   },
   {
-    name: "Dr. Peter King",
+    name: "Dr. Pete King",
     slug: "peterking1",
     ig: "kingpete__",
     squat: 220, bench: 155, deadlift: 270, total: 630, dots: 420.14,
@@ -178,6 +178,14 @@ const LIFTERS = [
     ig: "Robj1190",
     squat: 195, bench: 97.5, deadlift: 200, total: 492.5, dots: 320.08,
     fed: "WRPF-UK", equip: "Raw", bodyweight: "89.1",
+  },
+
+  {
+    name: "John Cousins",
+    slug: "johncousins1",
+    ig: null,
+    squat: 165, bench: 122.5, deadlift: 190, total: 472.5, dots: 322.53,
+    fed: "EPA", equip: "Raw", bodyweight: "81.4",
   },
 
   // ── LEGACY MEMBERS ──────────────────────────────────────────

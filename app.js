@@ -9,7 +9,7 @@
     scroll_duration_ms: 34000,   // how long the scroll phase lasts
     rivalry_hold_ms:    9000,    // how long each rivalry card holds
     scroll_px_per_sec:  45,      // scroll speed during list phase
-    joke_chance_each:   0.0025,  // 0.25% chance per joke rivalry, per check
+    joke_chance_each:   0.00175, // 0.175% chance per joke rivalry, per check
   };
 
   // ── State ─────────────────────────────────────────────────────
@@ -106,6 +106,60 @@
         a: realFighter("joecurzon"),
         b: { name: "Androgenic Alopecia", dots: 378.88, fed: "Genetic", equip: "Receding", bodyweight: "—", fake: true },
         caption: "Undefeated. Undeterred. Gaining ground at the temples. 0.01 ahead.",
+      }),
+    },
+    {
+      id: "toby-matt-destiny",
+      build: () => {
+        const toby = realFighter("tobysolomon");
+        const matt = realFighter("matthewanderson2");
+        if (!toby || !matt) return { a: null, b: null };
+        return {
+          a: { name: "Toby & Matt", dots: (toby.dots + matt.dots), fed: "Implexus", equip: "Inseparable", bodyweight: "—", team: true },
+          b: { name: "Their Destiny", dots: Infinity, fed: "Written", equip: "In The Stars", bodyweight: "—", fake: true },
+          caption: "Some bonds transcend the platform. Toby and Matt are not fighting destiny. They're holding hands with it.",
+        };
+      },
+    },
+    {
+      id: "laura-rack",
+      build: () => ({
+        a: realFighter("laurajones6"),
+        b: { name: "The Barbell Rack", dots: 0, fed: "Equipment", equip: "Treacherous", bodyweight: "Heavy", fake: true },
+        caption: "It tipped the loaded bar onto her and broke her hand. Laura came back. The rack is still just standing there.",
+      }),
+    },
+    {
+      id: "chris-image",
+      build: () => ({
+        a: realFighter("chrisjennings"),
+        b: { name: "That Final Deadlift", dots: 0, fed: "British Champs", equip: "1st & A Record", bodyweight: "66kg Class", fake: true,
+             image: "img/chris-deadlift.jpeg" },
+        caption: "One rep from 1st place and a 66kg-class deadlift record. It got away. Chris has not forgotten.",
+      }),
+    },
+    {
+      id: "ben-dempsey",
+      build: () => ({
+        a: realFighter("benthornes"),
+        b: { name: "Dempsey", dots: 462.29, fed: "EPF", equip: "Single", bodyweight: "103.6", fake: true },
+        caption: "The measuring stick. 8.37 in it. Ben's chasing.",
+      }),
+    },
+    {
+      id: "adam-excuses",
+      build: () => ({
+        a: { name: "Adam Harrison", dots: 0, fed: "DNS", equip: "Someday", bodyweight: "TBC", fake: true },
+        b: { name: "A List Of Excuses", dots: 999.99, fed: "Endless", equip: "Well-Rehearsed", bodyweight: "∞", fake: true },
+        caption: "Adam wants to compete. Adam also has a slightly tweaked back, a busy month, the wrong singlet, and a feeling it's not quite the right meet.",
+      }),
+    },
+    {
+      id: "everyone-curse240",
+      build: () => ({
+        a: { name: "Everyone", dots: 0, fed: "Implexus", equip: "All Of Us", bodyweight: "—", fake: true },
+        b: { name: "The Curse of 240", dots: 240, fed: "Unexplained", equip: "Squat", bodyweight: "240kg", fake: true },
+        caption: "They can squat more. The bar reads 240. It does not matter. The bar always wins.",
       }),
     },
   ];
@@ -350,35 +404,50 @@
   // ── Rivalry slide ─────────────────────────────────────────────
   function showRivalrySlide({ a, b, gap, caption, joke }) {
     const metaLine = (l) => {
-      // Only append kg when bodyweight is numeric
       const bw = l.bodyweight && /^[\d.]+$/.test(l.bodyweight) ? `${l.bodyweight}kg` : l.bodyweight;
       const parts = [l.fed, l.equip, bw].filter(Boolean);
       return parts.join(" • ");
     };
 
+    // Show a DOTS figure only when it's a real, finite, non-sentinel score.
+    // Conceptual/fake opponents (destiny, excuses, the rack) shouldn't show a number.
+    const dotsDisplay = (l) => {
+      if (!l.fake) return `<div class="dyn-fighter-dots">${fmtDots(l.dots)}</div>`;
+      if (l.dots && isFinite(l.dots) && l.dots !== 999.99 && l.dots !== 0 && l.dots !== 240) {
+        // a real-but-external person (Julien, Brett, Dempsey) — keep their score
+        return `<div class="dyn-fighter-dots">${fmtDots(l.dots)}</div>`;
+      }
+      // conceptual opponent — show a dash instead of a number
+      return `<div class="dyn-fighter-dots dyn-dots-concept">—</div>`;
+    };
+
+    const fighterHTML = (l, side) => {
+      const fakeClass = l.fake ? 'dyn-fighter-fake' : '';
+      const teamClass = l.team ? 'dyn-fighter-team' : '';
+      const imageHTML = l.image
+        ? `<div class="dyn-fighter-img-wrap"><img class="dyn-fighter-img" src="${l.image}" alt="${l.name}" /></div>`
+        : '';
+      return `
+        <div class="dyn-fighter dyn-fighter-${side} ${fakeClass} ${teamClass}">
+          ${imageHTML}
+          <div class="dyn-fighter-name">${l.name}</div>
+          ${dotsDisplay(l)}
+          <div class="dyn-fighter-meta">${metaLine(l)}</div>
+        </div>`;
+    };
+
     const label = joke ? "Grudge Match" : "Rivalry";
-    const gapDisplay = joke && caption
-      ? `<div class="dyn-caption">${caption}</div>`
-      : `<div class="dyn-gap-label">${gap.toFixed(2)} apart</div>`;
 
     overlay.innerHTML = `
       <div class="dyn-rivalry ${joke ? 'dyn-rivalry-joke' : ''}">
         <div class="dyn-rivalry-label ${joke ? 'dyn-label-joke' : ''}">${label}</div>
         <div class="dyn-rivalry-fighters">
-          <div class="dyn-fighter dyn-fighter-a">
-            <div class="dyn-fighter-name">${a.name}</div>
-            <div class="dyn-fighter-dots">${fmtDots(a.dots)}</div>
-            <div class="dyn-fighter-meta">${metaLine(a)}</div>
-          </div>
+          ${fighterHTML(a, 'a')}
           <div class="dyn-vs">
             <div class="dyn-vs-text">VS</div>
             ${joke ? '' : `<div class="dyn-gap-label">${gap.toFixed(2)} apart</div>`}
           </div>
-          <div class="dyn-fighter dyn-fighter-b ${b.fake ? 'dyn-fighter-fake' : ''}">
-            <div class="dyn-fighter-name">${b.name}</div>
-            <div class="dyn-fighter-dots">${fmtDots(b.dots)}</div>
-            <div class="dyn-fighter-meta">${metaLine(b)}</div>
-          </div>
+          ${fighterHTML(b, 'b')}
         </div>
         ${joke && caption ? `<div class="dyn-caption">${caption}</div>` : `
         <div class="dyn-gap-bar-wrap">
