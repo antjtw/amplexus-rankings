@@ -459,13 +459,14 @@ main {
 .dyn-scroll-wrap {
   flex: 1;
   overflow: hidden;
-  padding: 6vh 4vw 12vh;
+  padding: 6vh 4vw 0;
 }
 
 .dyn-list {
   display: flex;
   flex-direction: column;
   gap: 1vh;
+  margin-bottom: 14vh;
 }
 
 .dyn-row {

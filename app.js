@@ -5,7 +5,7 @@
   // ── Config ────────────────────────────────────────────────────
   const CONFIG = {
     rivalry_count:      5,      // number of rivalry pairs to surface
-    scroll_duration_ms: 26000,  // how long the scroll phase lasts
+    scroll_duration_ms: 34000,  // how long the scroll phase lasts
     rivalry_hold_ms:    9000,   // how long each rivalry card holds
     scroll_px_per_sec:  45,     // scroll speed during list phase
   };
@@ -178,30 +178,35 @@
     const listEl = overlay.querySelector("#dyn-list");
     const wrapEl = overlay.querySelector(".dyn-scroll-wrap");
 
-    // Start from top
-    let startY = 0;
+    // Wait one frame for layout, then measure and scroll
     let startTime = null;
-    const totalScrollable = listEl.scrollHeight - wrapEl.clientHeight;
-    const duration = CONFIG.scroll_duration_ms;
 
-    function step(ts) {
-      if (!startTime) startTime = ts;
-      const elapsed = ts - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      // Ease in/out for smooth feel
-      const eased = progress < 0.5
-        ? 2 * progress * progress
-        : 1 - Math.pow(-2 * progress + 2, 2) / 2;
-      wrapEl.scrollTop = eased * totalScrollable;
+    requestAnimationFrame(() => {
+      // scrollHeight includes padding — this gets us all the way to the last row
+      const totalScrollable = wrapEl.scrollHeight - wrapEl.clientHeight;
+      const duration = CONFIG.scroll_duration_ms;
 
-      if (progress < 1) {
-        scrollRAF = requestAnimationFrame(step);
-      } else {
-        holdTimeout = setTimeout(nextSlide, 800);
+      function step(ts) {
+        if (!startTime) startTime = ts;
+        const elapsed = ts - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // Gentle ease — slow start, mostly linear, gentle end
+        const eased = progress < 0.08
+          ? 8 * progress * progress
+          : progress > 0.92
+            ? 1 - Math.pow((1 - progress) * 12.5, 2) / 2
+            : 0.05 + (progress - 0.08) * (0.95 / 0.84);
+        wrapEl.scrollTop = eased * totalScrollable;
+
+        if (progress < 1) {
+          scrollRAF = requestAnimationFrame(step);
+        } else {
+          holdTimeout = setTimeout(nextSlide, 1200);
+        }
       }
-    }
 
-    scrollRAF = requestAnimationFrame(step);
+      scrollRAF = requestAnimationFrame(step);
+    });
   }
 
   function renderDynRow(lifter, rank, min, max) {
