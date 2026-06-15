@@ -4,7 +4,8 @@
 
   // ── Config ────────────────────────────────────────────────────
   const CONFIG = {
-    rivalry_count:      5,      // number of rivalry pairs to surface
+    rivalry_count:      6,      // number of rivalry pairs to surface
+    rivalries_per_break:3,      // how many rivalries between each list scroll
     scroll_duration_ms: 34000,  // how long the scroll phase lasts
     rivalry_hold_ms:    9000,   // how long each rivalry card holds
     scroll_px_per_sec:  45,     // scroll speed during list phase
@@ -47,13 +48,18 @@
 
   function buildPlaylist(list) {
     const rivalries = getRivalries(list);
-    // Interleave: scroll, rivalry, scroll, rivalry ...
+    // scroll, then a group of rivalries, then scroll, then next group ...
     const pl = [];
-    const scrollCount = rivalries.length + 1;
-    for (let i = 0; i < scrollCount; i++) {
+    const perBreak = CONFIG.rivalries_per_break;
+    let i = 0;
+    while (i < rivalries.length) {
       pl.push({ type: 'scroll' });
-      if (rivalries[i]) pl.push({ type: 'rivalry', ...rivalries[i] });
+      for (let j = 0; j < perBreak && i < rivalries.length; j++, i++) {
+        pl.push({ type: 'rivalry', ...rivalries[i] });
+      }
     }
+    // Ensure the loop ends on a scroll before repeating
+    pl.push({ type: 'scroll' });
     return pl;
   }
 
@@ -227,6 +233,11 @@
 
   // ── Rivalry slide ─────────────────────────────────────────────
   function showRivalrySlide({ a, b, gap }) {
+    const metaLine = (l) => {
+      const parts = [l.fed, l.equip, l.bodyweight ? `${l.bodyweight}kg` : null].filter(Boolean);
+      return parts.join(" • ");
+    };
+
     overlay.innerHTML = `
       <div class="dyn-rivalry">
         <div class="dyn-rivalry-label">Rivalry</div>
@@ -234,6 +245,7 @@
           <div class="dyn-fighter dyn-fighter-a">
             <div class="dyn-fighter-name">${a.name}</div>
             <div class="dyn-fighter-dots">${fmtDots(a.dots)}</div>
+            <div class="dyn-fighter-meta">${metaLine(a)}</div>
           </div>
           <div class="dyn-vs">
             <div class="dyn-vs-text">VS</div>
@@ -242,6 +254,7 @@
           <div class="dyn-fighter dyn-fighter-b">
             <div class="dyn-fighter-name">${b.name}</div>
             <div class="dyn-fighter-dots">${fmtDots(b.dots)}</div>
+            <div class="dyn-fighter-meta">${metaLine(b)}</div>
           </div>
         </div>
         <div class="dyn-gap-bar-wrap">
