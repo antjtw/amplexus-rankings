@@ -46,8 +46,17 @@
     return pairs.slice(0, CONFIG.rivalry_count);
   }
 
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
   function buildPlaylist(list) {
-    const rivalries = getRivalries(list);
+    const rivalries = shuffle(getRivalries(list));
     // scroll, then a group of rivalries, then scroll, then next group ...
     const pl = [];
     const perBreak = CONFIG.rivalries_per_break;
