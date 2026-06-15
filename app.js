@@ -5,10 +5,12 @@
   // ── Config ────────────────────────────────────────────────────
   const CONFIG = {
     rivalry_count:      12,      // size of the eligible pool to sample from
-    rivalries_per_break:6,       // how many rivalries shown between each list scroll
-    scroll_duration_ms: 34000,   // how long the scroll phase lasts
+    rivalries_per_break:6,       // how many rivalries shown between each list page-pass
+    per_page:           8,       // lifters shown per leaderboard page
+    page_hold_ms:       8000,    // total time each page is shown (incl. cascade)
+    page_fade_ms:       400,     // fade-out of the previous page
+    cascade_stagger_ms: 60,      // delay between each row cascading in
     rivalry_hold_ms:    9000,    // how long each rivalry card holds
-    scroll_px_per_sec:  45,      // scroll speed during list phase
     joke_chance_each:   0.00175, // 0.175% chance per joke rivalry, per check
   };
 
@@ -208,12 +210,16 @@
   }
 
   function buildPlaylist(list) {
-    // One clean cycle: a single list scroll, then exactly N rivalries.
-    // nextSlide() rebuilds a fresh randomised cycle each time it completes,
-    // so the rhythm is always  List -> N rivalries -> List -> N rivalries.
-    const n = CONFIG.rivalries_per_break;
-    const rivalries = shuffle(getRivalries(list)).slice(0, n);
-    const pl = [{ type: 'scroll' }];
+    // One clean cycle: all leaderboard pages (8 per page) cascade through once,
+    // then exactly N randomised rivalries. nextSlide() rebuilds a fresh cycle
+    // each loop so rivalries stay varied.
+    const pl = [];
+    const per = CONFIG.per_page;
+    const pageCount = Math.ceil(list.length / per);
+    for (let p = 0; p < pageCount; p++) {
+      pl.push({ type: 'page', pageIndex: p, pageCount });
+    }
+    const rivalries = shuffle(getRivalries(list)).slice(0, CONFIG.rivalries_per_break);
     for (const r of rivalries) pl.push({ type: 'rivalry', ...r });
     return pl;
   }
@@ -310,9 +316,7 @@
     holdTimeout = null;
   }
 
-  function nextSlide() {
-    clearDynamic();
-
+  function renderSlide() {
     // Roll for a rare joke rivalry interruption before each slide
     const joke = rollJokeRivalry();
     if (joke) {
@@ -329,60 +333,67 @@
 
     const slide = dynamicPlaylist[playlistIndex];
     playlistIndex++;
-    if (slide.type === 'scroll') {
-      showScrollSlide();
+    if (slide.type === 'page') {
+      showPageSlide(slide);
     } else {
       showRivalrySlide(slide);
     }
   }
 
-  // ── Scroll slide ──────────────────────────────────────────────
-  function showScrollSlide() {
+  function nextSlide() {
+    clearDynamic();
+    if (!overlay) return;
+
+    // Fade the current content out, then render the next slide
+    const hasContent = overlay.children.length > 0;
+    if (hasContent) {
+      overlay.classList.add("dyn-fading");
+      holdTimeout = setTimeout(() => {
+        overlay.classList.remove("dyn-fading");
+        renderSlide();
+      }, CONFIG.page_fade_ms);
+    } else {
+      renderSlide();
+    }
+  }
+
+  // ── Page slide ────────────────────────────────────────────────
+  function showPageSlide({ pageIndex, pageCount }) {
     const list = getList();
     const dots = list.map(l => l.dots);
     const min = Math.min(...dots), max = Math.max(...dots);
 
+    const per = CONFIG.per_page;
+    const start = pageIndex * per;
+    const pageItems = list.slice(start, start + per);
+
+    // Build rows with their absolute (continuous) rank
+    const rowsHTML = pageItems
+      .map((l, i) => renderDynRow(l, start + i + 1, min, max))
+      .join("");
+
     overlay.innerHTML = `
-      <div class="dyn-scroll-wrap">
-        <div class="dyn-list" id="dyn-list">
-          ${list.map((l, i) => renderDynRow(l, i + 1, min, max)).join("")}
+      <div class="dyn-page-header">
+        <img src="logo.svg" alt="Implexus" class="dyn-logo" />
+        <div class="dyn-page-indicator">${pageIndex + 1} / ${pageCount}</div>
+      </div>
+      <div class="dyn-page-wrap">
+        <div class="dyn-list dyn-page-list" id="dyn-page-list">
+          ${rowsHTML}
         </div>
       </div>
       <div class="dyn-exit-hint">tap to exit</div>
     `;
 
-    const listEl = overlay.querySelector("#dyn-list");
-    const wrapEl = overlay.querySelector(".dyn-scroll-wrap");
-
-    // Wait one frame for layout, then measure and scroll
-    let startTime = null;
-
-    requestAnimationFrame(() => {
-      // scrollHeight includes padding — this gets us all the way to the last row
-      const totalScrollable = wrapEl.scrollHeight - wrapEl.clientHeight;
-      const duration = CONFIG.scroll_duration_ms;
-
-      function step(ts) {
-        if (!startTime) startTime = ts;
-        const elapsed = ts - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        // Smooth in/out, clamped 0..1 so it never overshoots the bottom
-        const eased = progress < 0.5
-          ? 4 * progress * progress * progress
-          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-        const clamped = Math.max(0, Math.min(1, eased));
-        wrapEl.scrollTop = clamped * totalScrollable;
-
-        if (progress < 1) {
-          scrollRAF = requestAnimationFrame(step);
-        } else {
-          wrapEl.scrollTop = totalScrollable; // settle exactly at bottom
-          holdTimeout = setTimeout(nextSlide, 1500);
-        }
-      }
-
-      scrollRAF = requestAnimationFrame(step);
+    // Cascade each row in from the side
+    const rows = overlay.querySelectorAll(".dyn-row");
+    rows.forEach((row, i) => {
+      row.style.animationDelay = `${i * CONFIG.cascade_stagger_ms}ms`;
+      row.classList.add("dyn-row-cascade");
     });
+
+    // Hold, then advance
+    holdTimeout = setTimeout(nextSlide, CONFIG.page_hold_ms);
   }
 
   function renderDynRow(lifter, rank, min, max) {
@@ -392,11 +403,23 @@
     const legacyTag = lifter.legacy ? `<span class="dyn-legacy-tag">Legacy</span>` : "";
     const width = barWidth(lifter.dots, min, max);
 
+    const stat = (label, value) => `
+      <span class="dyn-stat">
+        <span class="dyn-stat-label">${label}</span>
+        <span class="dyn-stat-value">${fmt(value)}</span>
+      </span>`;
+
     return `
     <div class="dyn-row" data-rank="${rank}">
       <div class="dyn-bar" style="width:${width}%"></div>
       <span class="dyn-rank ${rankClass}">${rank}</span>
       <span class="dyn-name">${lifter.name}${legacyTag}</span>
+      <span class="dyn-stats">
+        ${stat("SQ", lifter.squat)}
+        ${stat("BP", lifter.bench)}
+        ${stat("DL", lifter.deadlift)}
+        ${stat("Total", lifter.total)}
+      </span>
       <span class="dyn-dots ${dotsHL}">${fmtDots(lifter.dots)}</span>
     </div>`;
   }
@@ -508,6 +531,7 @@
     playlistIndex = 0;
 
     overlay = createOverlay();
+    overlay.style.setProperty("--dyn-fade", `${CONFIG.page_fade_ms}ms`);
 
     // Attempt fullscreen
     const el = document.documentElement;

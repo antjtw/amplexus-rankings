@@ -357,7 +357,9 @@ main {
   .dyn-fighter-b,
   .dyn-vs-text,
   .dyn-gap-label,
-  .dyn-caption { animation: none !important; }
+  .dyn-caption,
+  .dyn-row-cascade { animation: none !important; }
+  #dynamic-overlay > *:not(.dyn-exit-hint) { transition: none !important; }
 }
 
 /* ── Desktop >= 600px ────────────────────────────────────── */
@@ -470,6 +472,7 @@ main {
   overflow: hidden;
   cursor: pointer;
   user-select: none;
+  --dyn-fade: 0.4s;
 }
 
 /* Exit hint */
@@ -485,31 +488,74 @@ main {
   pointer-events: none;
 }
 
-/* ── Scroll slide ──────────────────────────────────────────── */
-.dyn-scroll-wrap {
+/* Fade transition between slides */
+#dynamic-overlay > *:not(.dyn-exit-hint) {
+  transition: opacity var(--dyn-fade, 0.4s) ease;
+}
+#dynamic-overlay.dyn-fading > *:not(.dyn-exit-hint) {
+  opacity: 0;
+}
+
+/* ── Page header (logo, dynamic mode only) ───────────────────── */
+.dyn-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4vh 4vw 2vh;
+  flex-shrink: 0;
+}
+
+.dyn-logo {
+  height: clamp(22px, 3vh, 40px);
+  width: auto;
+  display: block;
+}
+
+.dyn-page-indicator {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: clamp(14px, 2vw, 26px);
+  letter-spacing: 0.15em;
+  color: rgba(255,255,255,0.3);
+}
+
+/* ── Page slide ──────────────────────────────────────────────── */
+.dyn-page-wrap {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 4vw;
   overflow: hidden;
-  padding: 6vh 4vw 0;
 }
 
 .dyn-list {
   display: flex;
   flex-direction: column;
-  gap: 1vh;
-  margin-bottom: 14vh;
+  gap: 1.2vh;
 }
 
 .dyn-row {
   position: relative;
   display: grid;
-  grid-template-columns: 8vw 1fr auto;
+  grid-template-columns: 7vw 1fr auto auto;
   align-items: center;
-  gap: 2vw;
-  padding: clamp(10px, 1.8vh, 22px) clamp(14px, 2vw, 28px);
+  gap: 2.5vw;
+  padding: clamp(10px, 1.8vh, 24px) clamp(14px, 2vw, 28px);
   background: rgba(255,255,255,0.03);
   border-radius: 6px;
   overflow: hidden;
   border-left: 3px solid rgba(255,213,0,0.2);
+}
+
+/* Cascade-in animation */
+.dyn-row-cascade {
+  animation: cascadeIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes cascadeIn {
+  from { opacity: 0; transform: translateX(-7vw); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
 .dyn-row[data-rank="1"] { border-left-color: #FFD500; }
@@ -562,6 +608,39 @@ main {
   vertical-align: middle;
 }
 
+/* Lift stats (SQ / BP / DL / Total) */
+.dyn-stats {
+  display: flex;
+  align-items: center;
+  gap: clamp(12px, 2vw, 36px);
+}
+
+.dyn-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3vh;
+  min-width: clamp(34px, 4vw, 64px);
+}
+
+.dyn-stat-label {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(8px, 0.9vw, 13px);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  line-height: 1;
+}
+
+.dyn-stat-value {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 600;
+  font-size: clamp(15px, 2.4vw, 34px);
+  color: rgba(255,255,255,0.85);
+  line-height: 1;
+}
+
 .dyn-dots {
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 800;
@@ -569,6 +648,7 @@ main {
   color: rgba(255,255,255,0.35);
   letter-spacing: 0.01em;
   text-align: right;
+  min-width: clamp(60px, 7vw, 120px);
 }
 
 .dyn-dots.dots-highlight { color: #FFD500; }
@@ -769,5 +849,8 @@ main {
   .dyn-fighter-a,
   .dyn-fighter-b { align-items: center; text-align: center; }
   .dyn-vs { flex-direction: row; gap: 2vw; }
+
+  /* Narrow screens: drop the per-lift stats, keep rank / name / DOTS */
   .dyn-row { grid-template-columns: 12vw 1fr auto; }
+  .dyn-stats { display: none; }
 }
