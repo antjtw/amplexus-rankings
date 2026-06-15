@@ -188,6 +188,14 @@ const LIFTERS = [
     fed: "EPA", equip: "Raw", bodyweight: "81.4",
   },
 
+  {
+    name: "Lee McCafferty",
+    slug: "leemccafferty",
+    ig: "mccaff_strength_system",
+    squat: 265, bench: 162.5, deadlift: 250, total: 677.5, dots: 385.41,
+    fed: "WPC", equip: "Wraps", bodyweight: "123.5",
+  },
+
   // ── LEGACY MEMBERS ──────────────────────────────────────────
   {
     name: "Chris Onuoha",
