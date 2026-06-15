@@ -328,7 +328,37 @@ main {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-@media (prefers-reduced-motion: reduce) { .lb-row { animation: none; } }
+/* Rivalry card entrance animations */
+@keyframes fighterInLeft {
+  from { opacity: 0; transform: translateX(-6vw); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes fighterInRight {
+  from { opacity: 0; transform: translateX(6vw); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes vsPop {
+  0%   { opacity: 0; transform: scale(0.4); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes rivalryLabelIn {
+  from { opacity: 0; transform: translateY(-10px); letter-spacing: 0.5em; }
+  to   { opacity: 1; transform: translateY(0); letter-spacing: 0.25em; }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lb-row,
+  .dyn-rivalry-label,
+  .dyn-fighter-a,
+  .dyn-fighter-b,
+  .dyn-vs-text,
+  .dyn-gap-label,
+  .dyn-caption { animation: none !important; }
+}
 
 /* ── Desktop >= 600px ────────────────────────────────────── */
 @media (min-width: 600px) {
@@ -561,6 +591,7 @@ main {
   letter-spacing: 0.25em;
   text-transform: uppercase;
   color: rgba(255,213,0,0.5);
+  animation: rivalryLabelIn 0.5s ease both;
 }
 
 .dyn-rivalry-fighters {
@@ -580,8 +611,18 @@ main {
   max-width: 38vw;
 }
 
-.dyn-fighter-a { align-items: flex-end; text-align: right; }
-.dyn-fighter-b { align-items: flex-start; text-align: left; }
+.dyn-fighter-a {
+  align-items: flex-end;
+  text-align: right;
+  animation: fighterInLeft 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 0.12s;
+}
+.dyn-fighter-b {
+  align-items: flex-start;
+  text-align: left;
+  animation: fighterInRight 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 0.12s;
+}
 
 .dyn-fighter-name {
   font-family: 'Barlow Condensed', sans-serif;
@@ -637,6 +678,8 @@ main {
   max-width: min(800px, 85vw);
   line-height: 1.5;
   margin-top: 1vh;
+  animation: fadeUp 0.6s ease both;
+  animation-delay: 0.55s;
 }
 
 .dyn-vs {
@@ -653,6 +696,8 @@ main {
   font-size: clamp(24px, 5vw, 80px);
   color: rgba(255,255,255,0.12);
   letter-spacing: 0.05em;
+  animation: vsPop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: 0.38s;
 }
 
 .dyn-gap-label {
@@ -662,6 +707,8 @@ main {
   color: rgba(255,213,0,0.6);
   letter-spacing: 0.05em;
   white-space: nowrap;
+  animation: fadeUp 0.5s ease both;
+  animation-delay: 0.5s;
 }
 
 /* Gap bar */

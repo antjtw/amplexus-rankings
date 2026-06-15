@@ -4,8 +4,8 @@
 
   // ── Config ────────────────────────────────────────────────────
   const CONFIG = {
-    rivalry_count:      6,       // number of rivalry pairs to surface
-    rivalries_per_break:3,       // how many rivalries between each list scroll
+    rivalry_count:      8,       // number of rivalry pairs to surface
+    rivalries_per_break:5,       // how many rivalries between each list scroll
     scroll_duration_ms: 34000,   // how long the scroll phase lasts
     rivalry_hold_ms:    9000,    // how long each rivalry card holds
     scroll_px_per_sec:  45,      // scroll speed during list phase
