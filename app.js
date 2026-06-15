@@ -190,18 +190,18 @@
         if (!startTime) startTime = ts;
         const elapsed = ts - startTime;
         const progress = Math.min(elapsed / duration, 1);
-        // Gentle ease — slow start, mostly linear, gentle end
-        const eased = progress < 0.08
-          ? 8 * progress * progress
-          : progress > 0.92
-            ? 1 - Math.pow((1 - progress) * 12.5, 2) / 2
-            : 0.05 + (progress - 0.08) * (0.95 / 0.84);
-        wrapEl.scrollTop = eased * totalScrollable;
+        // Smooth in/out, clamped 0..1 so it never overshoots the bottom
+        const eased = progress < 0.5
+          ? 4 * progress * progress * progress
+          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+        const clamped = Math.max(0, Math.min(1, eased));
+        wrapEl.scrollTop = clamped * totalScrollable;
 
         if (progress < 1) {
           scrollRAF = requestAnimationFrame(step);
         } else {
-          holdTimeout = setTimeout(nextSlide, 1200);
+          wrapEl.scrollTop = totalScrollable; // settle exactly at bottom
+          holdTimeout = setTimeout(nextSlide, 1500);
         }
       }
 
