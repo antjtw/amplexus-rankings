@@ -9,7 +9,7 @@
     scroll_duration_ms: 34000,   // how long the scroll phase lasts
     rivalry_hold_ms:    9000,    // how long each rivalry card holds
     scroll_px_per_sec:  45,      // scroll speed during list phase
-    joke_chance_each:   0.0005,  // 0.05% chance per joke rivalry, per check
+    joke_chance_each:   0.0025,  // 0.25% chance per joke rivalry, per check
   };
 
   // ── State ─────────────────────────────────────────────────────
