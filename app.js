@@ -130,7 +130,7 @@
   }
 
   function getRivalries(list) {
-    // Find all pairs within 10 DOTS of each other, prefer higher-ranked pairs
+    // Find ALL pairs within the DOTS threshold of each other (not just adjacent ranks)
     const pairs = [];
     for (let i = 0; i < list.length - 1; i++) {
       for (let j = i + 1; j < list.length; j++) {
@@ -138,9 +138,10 @@
         if (gap <= 10) pairs.push({ a: list[i], b: list[j], gap });
       }
     }
-    // Sort by rank proximity (prefer pairs closest to top) then by gap
-    pairs.sort((x, y) => (x.a.dots + x.b.dots) > (y.a.dots + y.b.dots) ? -1 : 1);
-    return pairs.slice(0, CONFIG.rivalry_count);
+    // Randomly sample from the full eligible pool so the selection differs each run,
+    // rather than always surfacing the same closest/highest-ranked pairs.
+    const shuffled = shuffle(pairs);
+    return shuffled.slice(0, CONFIG.rivalry_count);
   }
 
   function shuffle(arr) {
