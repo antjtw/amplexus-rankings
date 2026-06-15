@@ -4,11 +4,12 @@
 
   // ── Config ────────────────────────────────────────────────────
   const CONFIG = {
-    rivalry_count:      6,      // number of rivalry pairs to surface
-    rivalries_per_break:3,      // how many rivalries between each list scroll
-    scroll_duration_ms: 34000,  // how long the scroll phase lasts
-    rivalry_hold_ms:    9000,   // how long each rivalry card holds
-    scroll_px_per_sec:  45,     // scroll speed during list phase
+    rivalry_count:      6,       // number of rivalry pairs to surface
+    rivalries_per_break:3,       // how many rivalries between each list scroll
+    scroll_duration_ms: 34000,   // how long the scroll phase lasts
+    rivalry_hold_ms:    9000,    // how long each rivalry card holds
+    scroll_px_per_sec:  45,      // scroll speed during list phase
+    joke_chance_each:   0.0005,  // 0.05% chance per joke rivalry, per check
   };
 
   // ── State ─────────────────────────────────────────────────────
@@ -25,6 +26,102 @@
     return val % 1 === 0 ? val.toFixed(0) : val.toFixed(1);
   }
   function fmtDots(val) { return val.toFixed(2); }
+
+  // ── Lookup a real lifter by slug ──────────────────────────────
+  function bySlug(slug) {
+    return LIFTERS.find(l => l.slug === slug) || null;
+  }
+
+  // Build a fighter object from a real lifter, or a fake one.
+  // Fakes carry their own name/dots/meta and a `fake: true` flag.
+  function realFighter(slug, overrides = {}) {
+    const l = bySlug(slug);
+    if (!l) return null;
+    return { ...l, ...overrides };
+  }
+
+  // ── Joke rivalries ────────────────────────────────────────────
+  // These rotate in at random with a tiny per-item chance, in any mode.
+  // Each: { build() -> {a, b, caption} } so real stats are resolved live.
+  const JOKE_RIVALRIES = [
+    {
+      id: "will-nat-patience",
+      build: () => ({
+        a: realFighter("williamwebb1"),
+        b: { name: "Nat's Patience", dots: 0, fed: "COACH", equip: "Thin", bodyweight: "0", fake: true },
+        caption: "Nat Robinson has coached Will for years. Nat's patience: not pictured, presumed depleted.",
+      }),
+    },
+    {
+      id: "joe-refs",
+      build: () => ({
+        a: realFighter("joecurzon"),
+        b: { name: "WRPF Referees", dots: 999.99, fed: "Panel", equip: "Eagle-Eyed", bodyweight: "∞", fake: true },
+        caption: "Joe has never missed depth. The three red lights are a conspiracy. Especially her.",
+      }),
+    },
+    {
+      id: "mike-tendons",
+      build: () => ({
+        a: realFighter("mikejones1"),
+        b: { name: "Two Working Knee Tendons", dots: 0, fed: "Intact", equip: "A Distant Memory", bodyweight: "—", fake: true },
+        caption: "Mike had two. He now runs a leaner operation.",
+      }),
+    },
+    {
+      id: "matt-sam",
+      build: () => ({
+        a: realFighter("matthewanderson2"),
+        b: realFighter("samlusher"),
+        caption: "They don't talk. The DOTS are 3.22 apart. Neither will let it go.",
+      }),
+    },
+    {
+      id: "gen-asteroid",
+      build: () => ({
+        a: realFighter("genevievecollins"),
+        b: { name: "The Chicxulub Impactor", dots: 66, fed: "Asteroid", equip: "10km Wide", bodyweight: "A Lot", fake: true },
+        caption: "It ended the dinosaurs. Gen is still here. Advantage: Gen.",
+      }),
+    },
+    {
+      id: "wylie-julien",
+      build: () => ({
+        a: realFighter("wyliesung"),
+        b: { name: "Julien Borg", dots: 571.83, fed: "GPU", equip: "Wraps", bodyweight: "92.2", fake: true },
+        caption: "The European yardstick. 9.30 in it. Wylie's coming for it.",
+      }),
+    },
+    {
+      id: "mike-brett",
+      build: () => ({
+        a: realFighter("mikejones1"),
+        b: { name: "Brett Brooks", dots: 534.69, fed: "BPU", equip: "Wraps", bodyweight: "109.4", fake: true },
+        caption: "Brett's right there. 0.94 back. Mike can hear the footsteps.",
+      }),
+    },
+    {
+      id: "joe-alopecia",
+      build: () => ({
+        a: realFighter("joecurzon"),
+        b: { name: "Androgenic Alopecia", dots: 378.88, fed: "Genetic", equip: "Receding", bodyweight: "—", fake: true },
+        caption: "Undefeated. Undeterred. Gaining ground at the temples. 0.01 ahead.",
+      }),
+    },
+  ];
+
+  // Roll for a joke rivalry. Returns a built joke or null.
+  function rollJokeRivalry() {
+    const candidates = [];
+    for (const j of JOKE_RIVALRIES) {
+      if (Math.random() < CONFIG.joke_chance_each) candidates.push(j);
+    }
+    if (!candidates.length) return null;
+    const pick = candidates[Math.floor(Math.random() * candidates.length)];
+    const built = pick.build();
+    if (!built.a || !built.b) return null; // a real lifter was missing
+    return built;
+  }
 
   // ── Data helpers ─────────────────────────────────────────────
   function getList() {
@@ -166,6 +263,15 @@
 
   function nextSlide() {
     clearDynamic();
+
+    // Roll for a rare joke rivalry interruption before each slide
+    const joke = rollJokeRivalry();
+    if (joke) {
+      const gap = Math.abs(joke.a.dots - joke.b.dots);
+      showRivalrySlide({ ...joke, gap, joke: true });
+      return;
+    }
+
     const slide = dynamicPlaylist[playlistIndex % dynamicPlaylist.length];
     playlistIndex++;
     if (slide.type === 'scroll') {
@@ -241,15 +347,22 @@
   }
 
   // ── Rivalry slide ─────────────────────────────────────────────
-  function showRivalrySlide({ a, b, gap }) {
+  function showRivalrySlide({ a, b, gap, caption, joke }) {
     const metaLine = (l) => {
-      const parts = [l.fed, l.equip, l.bodyweight ? `${l.bodyweight}kg` : null].filter(Boolean);
+      // Only append kg when bodyweight is numeric
+      const bw = l.bodyweight && /^[\d.]+$/.test(l.bodyweight) ? `${l.bodyweight}kg` : l.bodyweight;
+      const parts = [l.fed, l.equip, bw].filter(Boolean);
       return parts.join(" • ");
     };
 
+    const label = joke ? "Grudge Match" : "Rivalry";
+    const gapDisplay = joke && caption
+      ? `<div class="dyn-caption">${caption}</div>`
+      : `<div class="dyn-gap-label">${gap.toFixed(2)} apart</div>`;
+
     overlay.innerHTML = `
-      <div class="dyn-rivalry">
-        <div class="dyn-rivalry-label">Rivalry</div>
+      <div class="dyn-rivalry ${joke ? 'dyn-rivalry-joke' : ''}">
+        <div class="dyn-rivalry-label ${joke ? 'dyn-label-joke' : ''}">${label}</div>
         <div class="dyn-rivalry-fighters">
           <div class="dyn-fighter dyn-fighter-a">
             <div class="dyn-fighter-name">${a.name}</div>
@@ -258,19 +371,20 @@
           </div>
           <div class="dyn-vs">
             <div class="dyn-vs-text">VS</div>
-            <div class="dyn-gap-label">${gap.toFixed(2)} apart</div>
+            ${joke ? '' : `<div class="dyn-gap-label">${gap.toFixed(2)} apart</div>`}
           </div>
-          <div class="dyn-fighter dyn-fighter-b">
+          <div class="dyn-fighter dyn-fighter-b ${b.fake ? 'dyn-fighter-fake' : ''}">
             <div class="dyn-fighter-name">${b.name}</div>
             <div class="dyn-fighter-dots">${fmtDots(b.dots)}</div>
             <div class="dyn-fighter-meta">${metaLine(b)}</div>
           </div>
         </div>
+        ${joke && caption ? `<div class="dyn-caption">${caption}</div>` : `
         <div class="dyn-gap-bar-wrap">
           <div class="dyn-gap-bar-track">
             <div class="dyn-gap-bar-fill"></div>
           </div>
-        </div>
+        </div>`}
       </div>
       <div class="dyn-exit-hint">tap to exit</div>
     `;
@@ -282,6 +396,38 @@
     });
 
     holdTimeout = setTimeout(nextSlide, CONFIG.rivalry_hold_ms);
+  }
+
+  // ── Static-mode joke rivalry (any mode) ───────────────────────
+  // While browsing the normal leaderboard, give joke rivalries a
+  // rare chance to pop up as a dismissible card.
+  function showStaticJoke(joke) {
+    if (dynamicActive || overlay) return; // never clash with dynamic mode
+    const gap = Math.abs(joke.a.dots - joke.b.dots);
+    overlay = createOverlay();
+    // Reuse the dynamic rivalry renderer
+    const saved = dynamicActive;
+    showRivalrySlide({ ...joke, gap, joke: true });
+    // No auto-advance; clearing the hold timeout the renderer set
+    clearTimeout(holdTimeout);
+    holdTimeout = null;
+    // Auto-dismiss after a while if not clicked
+    holdTimeout = setTimeout(() => {
+      if (overlay && !dynamicActive) { overlay.remove(); overlay = null; }
+    }, CONFIG.rivalry_hold_ms + 4000);
+  }
+
+  function startStaticJokeRoller() {
+    // Roll shortly after load, then periodically
+    setTimeout(() => {
+      const j = rollJokeRivalry();
+      if (j) showStaticJoke(j);
+    }, 8000);
+    setInterval(() => {
+      if (dynamicActive || overlay) return;
+      const j = rollJokeRivalry();
+      if (j) showStaticJoke(j);
+    }, 20000);
   }
 
   // ── Enter / exit dynamic ──────────────────────────────────────
@@ -343,6 +489,7 @@
     initLegacy();
     initDynamic();
     render();
+    startStaticJokeRoller();
   }
 
   document.readyState === "loading"

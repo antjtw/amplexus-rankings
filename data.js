@@ -165,6 +165,21 @@ const LIFTERS = [
     fed: "BPU", equip: "Raw", bodyweight: "84.8",
   },
 
+  {
+    name: "Ben Thornes",
+    slug: "benthornes",
+    ig: "wakefield_strength_academy",
+    squat: 290, bench: 155, deadlift: 307.5, total: 752.5, dots: 453.92,
+    fed: "BPU", equip: "Wraps", bodyweight: "104.9",
+  },
+  {
+    name: "Rob Jacobs",
+    slug: "robjacobs",
+    ig: "Robj1190",
+    squat: 195, bench: 97.5, deadlift: 200, total: 492.5, dots: 320.08,
+    fed: "WRPF-UK", equip: "Raw", bodyweight: "89.1",
+  },
+
   // ── LEGACY MEMBERS ──────────────────────────────────────────
   {
     name: "Chris Onuoha",

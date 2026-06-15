@@ -610,6 +610,35 @@ main {
   margin-top: 0.5vh;
 }
 
+/* Joke / grudge match */
+.dyn-label-joke {
+  color: rgba(232, 90, 60, 0.7) !important;
+}
+
+.dyn-rivalry-joke .dyn-fighter-dots {
+  color: #FFD500;
+}
+
+.dyn-fighter-fake .dyn-fighter-dots {
+  color: rgba(255,255,255,0.55);
+}
+
+.dyn-fighter-fake .dyn-fighter-name {
+  font-style: italic;
+}
+
+.dyn-caption {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(13px, 1.8vw, 24px);
+  font-weight: 500;
+  font-style: italic;
+  color: rgba(255,255,255,0.55);
+  text-align: center;
+  max-width: min(800px, 85vw);
+  line-height: 1.5;
+  margin-top: 1vh;
+}
+
 .dyn-vs {
   display: flex;
   flex-direction: column;
