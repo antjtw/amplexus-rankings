@@ -506,9 +506,10 @@ main {
 }
 
 .dyn-logo {
-  height: clamp(22px, 3vh, 40px);
+  height: clamp(18px, 2.4vh, 32px);
   width: auto;
   display: block;
+  color: rgba(255,255,255,0.12);
 }
 
 .dyn-page-indicator {
