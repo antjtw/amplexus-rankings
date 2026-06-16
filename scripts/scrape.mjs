@@ -203,22 +203,28 @@ async function main() {
       const html = await fetchProfile(lifter.slug);
       const scraped = parseProfile(html);
 
-      // Detect PB improvements (any lift / total / dots going up)
+      // Detect genuine PB improvements in the actual lifts.
+      // A DOTS change on its own does NOT count — OpenPowerlifting can recompute
+      // DOTS to a slightly different precision than we have stored, which would
+      // otherwise flag everyone as a "PB" every run. We only celebrate when a
+      // squat/bench/deadlift/total actually goes UP by a meaningful margin.
+      const EPS = 0.01; // ignore sub-kg float noise
       const improved = {};
       for (const k of ["squat", "bench", "deadlift", "total"]) {
-        if (scraped[k] > (lifter[k] || 0)) {
-          improved[k] = { from: lifter[k] || 0, to: scraped[k] };
+        const prev = lifter[k] || 0;
+        if (prev > 0 && scraped[k] > prev + EPS) {
+          improved[k] = { from: prev, to: scraped[k] };
         }
       }
-      const dotsUp = scraped.dots > (lifter.dots || 0);
 
-      if (Object.keys(improved).length || dotsUp) {
+      // Only a real lift improvement generates a card. DOTS is shown on the
+      // card for context but never triggers one by itself.
+      if (Object.keys(improved).length > 0) {
         pbEvents.push({
           slug: lifter.slug,
           name: lifter.name,
           improved,                                   // {lift: {from,to}}
           dots: { from: lifter.dots || 0, to: scraped.dots },
-          dotsUp,
         });
       }
 

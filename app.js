@@ -17,11 +17,12 @@
   // ── State ─────────────────────────────────────────────────────
   let showLegacy = false;
   let dynamicActive = false;
-  let dynamicPlaylist = [];   // [{type:'scroll'} | {type:'rivalry', a, b, gap}]
+  let dynamicPlaylist = [];   // [{type:'page'} | {type:'rivalry'} | {type:'pb'}]
   let playlistIndex = 0;
   let scrollRAF = null;
   let holdTimeout = null;
   let overlay = null;
+  let pbCursor = 0;           // rotates through PB events, one shown per cycle
 
   // ── Formatters ───────────────────────────────────────────────
   function fmt(val) {
@@ -249,23 +250,30 @@
   }
 
   function buildPlaylist(list) {
-    // One clean cycle: all leaderboard pages cascade through once, then this
-    // week's PB callouts (if any), then N randomised rivalries. nextSlide()
-    // rebuilds a fresh cycle each loop so rivalries stay varied.
+    // One cycle:  leaderboard pages  ->  N rivalries  ->  ONE PB card (if any).
+    // The PB shown rotates each cycle via pbCursor, so over several loops the
+    // board works through all of the week's PBs without ever showing more than
+    // one at a time. Rivalries stay the main event. nextSlide() rebuilds a
+    // fresh cycle each loop so rivalries re-shuffle.
     const pl = [];
     const per = CONFIG.per_page;
     const pageCount = Math.ceil(list.length / per);
     for (let p = 0; p < pageCount; p++) {
       pl.push({ type: 'page', pageIndex: p, pageCount });
     }
-    // This week's PB events become callout cards (guaranteed, not random)
-    const pbEvents = (CH.pbEvents || []).filter(ev =>
-      LIFTERS.some(l => l.slug === ev.slug)   // only celebrate current members
-    );
-    for (const ev of pbEvents) pl.push({ type: 'pb', ev });
 
     const rivalries = shuffle(getRivalries(list)).slice(0, CONFIG.rivalries_per_break);
     for (const r of rivalries) pl.push({ type: 'rivalry', ...r });
+
+    // PB events for lifters visible in the current view (respects legacy toggle)
+    const visibleSlugs = new Set(list.map(l => l.slug));
+    const pbEvents = (CH.pbEvents || []).filter(ev => visibleSlugs.has(ev.slug));
+    if (pbEvents.length) {
+      const ev = pbEvents[pbCursor % pbEvents.length];
+      pbCursor++;                                   // advance for next cycle
+      pl.push({ type: 'pb', ev });
+    }
+
     return pl;
   }
 
@@ -576,6 +584,7 @@
   // ── Enter / exit dynamic ──────────────────────────────────────
   function enterDynamic() {
     dynamicActive = true;
+    pbCursor = 0;
     const list = getList();
     dynamicPlaylist = buildPlaylist(list);
     playlistIndex = 0;
