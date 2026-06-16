@@ -329,14 +329,6 @@
   }
 
   function renderSlide() {
-    // Roll for a rare joke rivalry interruption before each slide
-    const joke = rollJokeRivalry();
-    if (joke) {
-      const gap = Math.abs(joke.a.dots - joke.b.dots);
-      showRivalrySlide({ ...joke, gap, joke: true });
-      return;
-    }
-
     // When we've run through the current cycle, build a fresh randomised one
     if (playlistIndex >= dynamicPlaylist.length) {
       dynamicPlaylist = buildPlaylist(getList());
@@ -345,8 +337,18 @@
 
     const slide = dynamicPlaylist[playlistIndex];
     playlistIndex++;
+
     if (slide.type === 'page') {
       showPageSlide(slide);
+      return;
+    }
+
+    // Rivalry slide: give a joke rivalry a rare chance to take this slot instead.
+    // Jokes only ever appear here, never interrupting the page sequence.
+    const joke = rollJokeRivalry();
+    if (joke) {
+      const gap = Math.abs(joke.a.dots - joke.b.dots);
+      showRivalrySlide({ ...joke, gap, joke: true });
     } else {
       showRivalrySlide(slide);
     }
@@ -502,38 +504,6 @@
     holdTimeout = setTimeout(nextSlide, CONFIG.rivalry_hold_ms);
   }
 
-  // ── Static-mode joke rivalry (any mode) ───────────────────────
-  // While browsing the normal leaderboard, give joke rivalries a
-  // rare chance to pop up as a dismissible card.
-  function showStaticJoke(joke) {
-    if (dynamicActive || overlay) return; // never clash with dynamic mode
-    const gap = Math.abs(joke.a.dots - joke.b.dots);
-    overlay = createOverlay();
-    // Reuse the dynamic rivalry renderer
-    const saved = dynamicActive;
-    showRivalrySlide({ ...joke, gap, joke: true });
-    // No auto-advance; clearing the hold timeout the renderer set
-    clearTimeout(holdTimeout);
-    holdTimeout = null;
-    // Auto-dismiss after a while if not clicked
-    holdTimeout = setTimeout(() => {
-      if (overlay && !dynamicActive) { overlay.remove(); overlay = null; }
-    }, CONFIG.rivalry_hold_ms + 4000);
-  }
-
-  function startStaticJokeRoller() {
-    // Roll shortly after load, then periodically
-    setTimeout(() => {
-      const j = rollJokeRivalry();
-      if (j) showStaticJoke(j);
-    }, 8000);
-    setInterval(() => {
-      if (dynamicActive || overlay) return;
-      const j = rollJokeRivalry();
-      if (j) showStaticJoke(j);
-    }, 20000);
-  }
-
   // ── Enter / exit dynamic ──────────────────────────────────────
   function enterDynamic() {
     dynamicActive = true;
@@ -594,7 +564,6 @@
     initLegacy();
     initDynamic();
     render();
-    startStaticJokeRoller();
   }
 
   document.readyState === "loading"
