@@ -1,5 +1,4 @@
 name: Weekly leaderboard refresh
-
 # Runs every Wednesday at 06:00 UK time, and can be triggered by hand.
 # Note: GitHub schedules use UTC and can drift a few minutes under load.
 #  - 06:00 GMT  (winter) = 06:00 UTC
@@ -10,25 +9,20 @@ on:
   schedule:
     - cron: "0 5 * * 3"   # 05:00 UTC every Wednesday
   workflow_dispatch: {}    # manual "Run workflow" button
-
 permissions:
   contents: write          # allow the action to commit data.js / changes.js
-
 jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
-
+        uses: actions/checkout@v5
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: "20"
-
+          node-version: "24"
       - name: Run scraper
         run: node scripts/scrape.mjs
-
       - name: Commit changes if any
         run: |
           git config user.name  "Implexus Leaderboard Bot"
