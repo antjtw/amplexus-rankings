@@ -1,0 +1,43 @@
+name: Weekly leaderboard refresh
+
+# Runs every Wednesday at 06:00 UK time, and can be triggered by hand.
+# Note: GitHub schedules use UTC and can drift a few minutes under load.
+#  - 06:00 GMT  (winter) = 06:00 UTC
+#  - 06:00 BST  (summer) = 05:00 UTC
+# We run at 05:00 UTC so it lands at 06:00 during British Summer Time, and
+# 05:00 in winter — close enough for a weekly gym board. Adjust if you prefer.
+on:
+  schedule:
+    - cron: "0 5 * * 3"   # 05:00 UTC every Wednesday
+  workflow_dispatch: {}    # manual "Run workflow" button
+
+permissions:
+  contents: write          # allow the action to commit data.js / changes.js
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Run scraper
+        run: node scripts/scrape.mjs
+
+      - name: Commit changes if any
+        run: |
+          git config user.name  "Implexus Leaderboard Bot"
+          git config user.email "actions@github.com"
+          if [ -n "$(git status --porcelain data.js changes.js)" ]; then
+            git add data.js changes.js
+            git commit -m "Weekly leaderboard refresh ($(date -u +%Y-%m-%d))"
+            git push
+            echo "Committed and pushed updated data."
+          else
+            echo "No changes this week — nothing to commit."
+          fi
