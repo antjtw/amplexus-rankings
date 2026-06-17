@@ -177,6 +177,14 @@
         };
       },
     },
+    {
+      id: "jodie-blackbelt",
+      build: () => ({
+        a: realFighter("jodiebarnsley"),
+        b: { name: "Anyone Considering Arguing With Her", dots: 0, fed: "Unwise", equip: "Outmatched", bodyweight: "—", fake: true },
+        caption: "Squats, deadlifts, and a karate black belt. The leaderboard position is negotiable. She is not.",
+      }),
+    },
   ];
 
   // Roll for a joke rivalry. Returns a built joke or null.
@@ -664,6 +672,20 @@
     }
   }
 
+  // ── Footer "last updated" line ────────────────────────────────
+  // Shows the real refresh date from changes.js (e.g. "Updated 18 Jun 2026").
+  // Falls back to the static cadence line if no timestamp exists yet.
+  function setUpdatedLine() {
+    const el = document.getElementById("updated-line");
+    if (!el) return;
+    const ts = CH.generated;
+    if (!ts) return; // keep the static "Updated each Wednesday at 6am."
+    const d = new Date(ts);
+    if (isNaN(d)) return;
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    el.textContent = `Updated ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}.`;
+  }
+
   // ── Inits ─────────────────────────────────────────────────────
   function initTheme() {
     const root = document.documentElement;
@@ -702,6 +724,7 @@
     initLegacy();
     initDynamic();
     render();
+    setUpdatedLine();       // show real refresh date if available
     restoreFromHash();      // re-apply state if we just auto-reloaded
     scheduleWeeklyReload(); // arm the next Wednesday 06:15 refresh
   }
