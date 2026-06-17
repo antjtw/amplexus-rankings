@@ -133,6 +133,15 @@
       }),
     },
     {
+      id: "wylie-bloat",
+      build: () => ({
+        a: realFighter("wyliesung"),
+        b: { name: "The Pre-Comp Bloat", dots: 0, fed: "Hotel Room", equip: "Two Tubs", bodyweight: "Rising", fake: true,
+             image: "img/wylie-bloat.png" },
+        caption: "Weigh-in done, the refeed begins. Wylie has the numbers. The bloat has the night off. Both are winning.",
+      }),
+    },
+    {
       id: "ben-dempsey",
       build: () => ({
         a: realFighter("benthornes"),
