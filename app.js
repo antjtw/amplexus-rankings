@@ -6,7 +6,7 @@
   const CONFIG = {
     rivalry_count:      12,      // size of the eligible pool to sample from
     rivalries_per_break:6,       // how many rivalries shown between each list page-pass
-    per_page:           6,       // lifters shown per leaderboard page
+    per_page:           7,       // lifters shown per leaderboard page
     page_hold_ms:       8000,    // total time each page is shown (incl. cascade)
     page_fade_ms:       400,     // fade-out of the previous page
     cascade_stagger_ms: 60,      // delay between each row cascading in
@@ -29,6 +29,28 @@
     return val % 1 === 0 ? val.toFixed(0) : val.toFixed(1);
   }
   function fmtDots(val) { return val.toFixed(2); }
+
+  // ── Sparse-page captions ──────────────────────────────────────
+  // Shown centred below the rows on a final leaderboard page with ≤4 lifters.
+  // Picked 80% from the wholesome group, 20% from the jokes group, fresh each
+  // time a sparse page appears.
+  const SPARSE_WHOLESOME = [
+    { text: "…and then the other 98% of the world, who don't lift at all." },
+    { text: "Stronger people are harder to kill, and more useful generally.", credit: "Mark Rippetoe" },
+    { text: "Bottom of this board. Top of almost every other room." },
+    { text: "Last here. Lapping everyone still on the sofa." },
+    { text: "Every name here picks up heavy things on purpose. That alone makes them rare." },
+  ];
+  const SPARSE_JOKES = [
+    { text: "And despite all that, Joe still lives in Bradford." },
+    { text: "Despite what OpenPowerlifting says, Mike has bombed out of a competition." },
+    { text: "If Joe doesn't squat 250 by the end of the year, he has to shave his head." },
+  ];
+
+  function pickSparseCaption() {
+    const group = Math.random() < 0.8 ? SPARSE_WHOLESOME : SPARSE_JOKES;
+    return group[Math.floor(Math.random() * group.length)];
+  }
 
   // Inline Implexus logo for dynamic mode. White letterforms use currentColor
   // (set via CSS) so they can be muted; the yellow accent paths stay #FFD500.
@@ -449,6 +471,18 @@
       .map((l, i) => renderDynRow(l, start + i + 1, min, max))
       .join("");
 
+    // On a sparse final page (≤4 lifters), add a centred caption below.
+    const isLastPage = pageIndex === pageCount - 1;
+    let captionHTML = "";
+    if (isLastPage && pageItems.length <= 4) {
+      const c = pickSparseCaption();
+      captionHTML = `
+        <div class="dyn-sparse-caption">
+          <span class="dyn-sparse-text">${c.text}</span>
+          ${c.credit ? `<span class="dyn-sparse-credit">— ${c.credit}</span>` : ""}
+        </div>`;
+    }
+
     overlay.innerHTML = `
       <div class="dyn-page-header">
         <div class="dyn-page-indicator">${pageIndex + 1} / ${pageCount}</div>
@@ -457,6 +491,7 @@
         <div class="dyn-list dyn-page-list" id="dyn-page-list">
           ${rowsHTML}
         </div>
+        ${captionHTML}
       </div>
       <div class="dyn-exit-hint">tap to exit</div>
     `;

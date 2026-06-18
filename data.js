@@ -196,6 +196,14 @@ const LIFTERS = [
     fed: "WPC", equip: "Wraps", bodyweight: "123.5",
   },
 
+  {
+    name: "Chloe Boomer",
+    slug: "chloeboomer",
+    ig: "boomer_strength",
+    squat: 122.5, bench: 62.5, deadlift: 155, total: 340, dots: 367.10,
+    fed: "EPA", equip: "Raw", bodyweight: "62.6",
+  },
+
   // ── LEGACY MEMBERS ──────────────────────────────────────────
   {
     name: "Chris Onuoha",
