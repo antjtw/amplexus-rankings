@@ -3,6 +3,9 @@
 // For lifters with Raw + Wraps entries, best DOTS row determines ranking;
 // individual lift PBs are taken across both equip categories.
 // legacy: true = former member, shown only when legacy filter is on.
+//
+// This file is refreshed automatically every Wednesday by scripts/scrape.mjs.
+// Add new lifters by hand; the scraper only updates lifters already listed.
 
 const LIFTERS = [
   // ── ACTIVE MEMBERS ──────────────────────────────────────────
@@ -84,14 +87,6 @@ const LIFTERS = [
     fed: "WRPF-UK", equip: "Wraps", bodyweight: "99.8",
   },
   {
-    name: "Leo Hannan",
-    slug: "leohannan",
-    ig: "leo.hannan",
-    squat: 200, bench: 127.5, deadlift: 250, total: 572.5, dots: 388.07,
-    fed: "EPA", equip: "Raw", bodyweight: "82.4",
-    legacy: true,
-  },
-  {
     name: "Toby Solomon",
     slug: "tobysolomon",
     ig: "toby_solomon_",
@@ -116,16 +111,8 @@ const LIFTERS = [
     name: "Owen Crisp",
     slug: "owencrisp",
     ig: "owen_crisp",
-    squat: 160, bench: 102.5, deadlift: 202.5, total: 462.5, dots: 327.69,
+    squat: 172.5, bench: 102.5, deadlift: 202.5, total: 467.5, dots: 327.69,
     fed: "WRPF-UK", equip: "Raw", bodyweight: "76.5",
-  },
-  {
-    name: "Sam Lusher",
-    slug: "samlusher",
-    ig: "lush_sa94",
-    squat: 205, bench: 142.5, deadlift: 215, total: 562.5, dots: 326.22,
-    fed: "EPA", equip: "Raw", bodyweight: "116.6",
-    legacy: true,
   },
   {
     name: "Jodie Barnsley",
@@ -141,7 +128,6 @@ const LIFTERS = [
     squat: 82.5, bench: 45, deadlift: 117.5, total: 245, dots: 245.62,
     fed: "WRPF-UK", equip: "Raw", bodyweight: "69.8",
   },
-
   {
     name: "Jack Larkins-Thomas",
     slug: "jacklarkinsthomas",
@@ -149,12 +135,11 @@ const LIFTERS = [
     squat: 160, bench: 82.5, deadlift: 180, total: 422.5, dots: 245.91,
     fed: "WRPF-UK", equip: "Raw", bodyweight: "115.4",
   },
-
   {
     name: "Kai Richardson",
     slug: "kairichardson",
     ig: "koach_kai",
-    squat: 207.5, bench: 145, deadlift: 300, total: 637.5, dots: 450.21,
+    squat: 215, bench: 145, deadlift: 300, total: 637.5, dots: 450.21,
     fed: "EPA", equip: "Raw", bodyweight: "76.9",
   },
   {
@@ -164,12 +149,11 @@ const LIFTERS = [
     squat: 220, bench: 155, deadlift: 270, total: 630, dots: 420.14,
     fed: "BPU", equip: "Raw", bodyweight: "84.8",
   },
-
   {
     name: "Ben Thornes",
     slug: "benthornes",
     ig: "wakefield_strength_academy",
-    squat: 290, bench: 155, deadlift: 315.5, total: 752.5, dots: 453.92,
+    squat: 290, bench: 160, deadlift: 315.5, total: 752.5, dots: 453.92,
     fed: "BPU", equip: "Wraps", bodyweight: "104.9",
   },
   {
@@ -179,15 +163,13 @@ const LIFTERS = [
     squat: 195, bench: 97.5, deadlift: 200, total: 492.5, dots: 320.08,
     fed: "WRPF-UK", equip: "Raw", bodyweight: "89.1",
   },
-
   {
     name: "John Cousins",
     slug: "johncousins1",
     ig: null,
     squat: 165, bench: 125, deadlift: 192.5, total: 477.5, dots: 324.35,
-    fed: "EPA", equip: "Raw", bodyweight: "81.4",
+    fed: "EPA", equip: "Raw", bodyweight: "82.1",
   },
-
   {
     name: "Lee McCafferty",
     slug: "leemccafferty",
@@ -195,16 +177,31 @@ const LIFTERS = [
     squat: 265, bench: 162.5, deadlift: 250, total: 677.5, dots: 385.41,
     fed: "WPC", equip: "Wraps", bodyweight: "123.5",
   },
-
   {
     name: "Chloe Boomer",
     slug: "chloeboomer",
     ig: "boomer_strength",
-    squat: 122.5, bench: 62.5, deadlift: 155, total: 340, dots: 367.10,
+    squat: 122.5, bench: 62.5, deadlift: 155, total: 340, dots: 367.1,
     fed: "EPA", equip: "Raw", bodyweight: "62.6",
   },
 
   // ── LEGACY MEMBERS ──────────────────────────────────────────
+  {
+    name: "Leo Hannan",
+    slug: "leohannan",
+    ig: "leo.hannan",
+    squat: 200, bench: 127.5, deadlift: 250, total: 572.5, dots: 388.07,
+    fed: "EPA", equip: "Raw", bodyweight: "82.4",
+    legacy: true,
+  },
+  {
+    name: "Sam Lusher",
+    slug: "samlusher",
+    ig: "lush_sa94",
+    squat: 205, bench: 142.5, deadlift: 215, total: 562.5, dots: 326.22,
+    fed: "EPA", equip: "Raw", bodyweight: "116.6",
+    legacy: true,
+  },
   {
     name: "Chris Onuoha",
     slug: "chrisonuoha",
@@ -217,7 +214,7 @@ const LIFTERS = [
     name: "Alex Shortland",
     slug: "alexshortland",
     ig: "alex.shortland",
-    squat: 240, bench: 155, deadlift: 270, total: 665, dots: 383.80,
+    squat: 240, bench: 155, deadlift: 270, total: 665, dots: 383.8,
     fed: "BPU", equip: "Wraps", bodyweight: "118.2",
     legacy: true,
   },
@@ -265,7 +262,7 @@ const LIFTERS = [
     name: "Tony McLaughlin",
     slug: "anthonymclaughlin1",
     ig: "fat_tony2",
-    squat: 240, bench: 152.5, deadlift: 300, total: 680, dots: 411.38,
+    squat: 245, bench: 152.5, deadlift: 300, total: 680, dots: 411.38,
     fed: "EPA", equip: "Raw", bodyweight: "104.2",
     legacy: true,
   },
