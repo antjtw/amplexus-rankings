@@ -7,7 +7,7 @@
 // generated: ISO timestamp of the run that produced this file.
 
 const CHANGES = {
-  "generated": "2026-06-20T12:23:32.214Z",
+  "generated": "2026-06-21T13:01:25.792Z",
   "prevRankActive": {
     "wyliesung": 1,
     "mikejones1": 2,
