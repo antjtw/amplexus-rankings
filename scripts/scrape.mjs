@@ -44,6 +44,19 @@ function loadLifters() {
   return lifters;
 }
 
+// Load the existing CHANGES object from changes.js (for the 7-day rolling
+// window). Returns a safe empty default if the file is missing or unreadable.
+function loadChanges() {
+  try {
+    const src = readFileSync(CHANGES_PATH, "utf8");
+    // eslint-disable-next-line no-new-func
+    const fn = new Function(`${src}; return CHANGES;`);
+    const c = fn();
+    if (c && typeof c === "object") return c;
+  } catch (_) { /* fall through to default */ }
+  return { generated: null, baselineDate: null, prevRankActive: {}, prevRankAll: {}, pbEvents: [] };
+}
+
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // ── Fetch one profile's HTML ─────────────────────────────────────
@@ -172,29 +185,58 @@ ${legacy.map(line).join("\n")}
 
 // ── Serialise changes.js ─────────────────────────────────────────
 function serialiseChanges(changes) {
-  return `// Implexus Powerlifting — weekly change log
-// Written automatically by scripts/scrape.mjs each Wednesday.
-// prevRankActive / prevRankAll: slug -> last week's rank in each view,
-//   used to draw position arrows on the board.
-// pbEvents: this week's personal-best improvements, shown as callout cards
-//   in dynamic mode. Cleared and rewritten every run.
-// generated: ISO timestamp of the run that produced this file.
+  return `// Implexus Powerlifting — change log (rolling 7-day window)
+// Written automatically by scripts/scrape.mjs on each daily run.
+// generated:      ISO timestamp of the run that produced this file.
+// baselineDate:   when the current rank baseline was set (refreshed every 7 days).
+// prevRankActive / prevRankAll: slug -> rank as of baselineDate, in each view.
+//   Position arrows compare current rank against these, so movement reflects
+//   the whole week rather than just the last run.
+// pbEvents:       personal-best improvements from the last 7 days, each stamped
+//   with the date it hit the board. Shown as callout cards in dynamic mode,
+//   ageing out after 7 days. A new PB for a lifter overrides their older one.
 
 const CHANGES = ${JSON.stringify(changes, null, 2)};
 `;
 }
 
 // ── Main ─────────────────────────────────────────────────────────
+const WINDOW_DAYS = 7;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 async function main() {
   const lifters = loadLifters();
   console.log(`Loaded ${lifters.length} lifters from data.js`);
 
-  // Snapshot previous ranks BEFORE we change any numbers
-  const prevRankActive = rankMap(lifters.filter((l) => !l.legacy));
-  const prevRankAll = rankMap(lifters);
+  const prev = loadChanges();
+  const now = new Date();
+  const nowISO = now.toISOString();
+
+  // Rank baseline: arrows compare CURRENT rank against a baseline that is
+  // refreshed only once every 7 days, so movement reflects the whole week
+  // rather than just the last run. If the stored baseline is missing or older
+  // than the window, we re-snapshot it from the pre-update ranks now.
+  const baselineAge = prev.baselineDate ? (now - new Date(prev.baselineDate)) : Infinity;
+  const baselineExpired = baselineAge >= WINDOW_DAYS * DAY_MS;
+
+  const preRankActive = rankMap(lifters.filter((l) => !l.legacy));
+  const preRankAll = rankMap(lifters);
+
+  let baselineDate, prevRankActive, prevRankAll;
+  if (baselineExpired || !prev.prevRankActive || Object.keys(prev.prevRankActive).length === 0) {
+    // Start a fresh 7-day window from today's pre-update ranks
+    baselineDate = nowISO;
+    prevRankActive = preRankActive;
+    prevRankAll = preRankAll;
+  } else {
+    // Keep the existing baseline so arrows keep measuring against it all week
+    baselineDate = prev.baselineDate;
+    prevRankActive = prev.prevRankActive;
+    prevRankAll = prev.prevRankAll;
+  }
 
   const updated = [];
-  const pbEvents = [];
+  const newPbEvents = [];
   let okCount = 0;
 
   for (const lifter of lifters) {
@@ -220,11 +262,12 @@ async function main() {
       // Only a real lift improvement generates a card. DOTS is shown on the
       // card for context but never triggers one by itself.
       if (Object.keys(improved).length > 0) {
-        pbEvents.push({
+        newPbEvents.push({
           slug: lifter.slug,
           name: lifter.name,
           improved,                                   // {lift: {from,to}}
           dots: { from: lifter.dots || 0, to: scraped.dots },
+          date: nowISO,                               // when this PB hit the board
         });
       }
 
@@ -258,24 +301,44 @@ async function main() {
     process.exit(1);
   }
 
-  // Compute new ranks AFTER updating, so rank-jump deltas are correct
+  // Compute new ranks AFTER updating
   const newRankActive = rankMap(updated.filter((l) => !l.legacy));
   const newRankAll = rankMap(updated);
 
-  // Attach rank movement to PB events (jumps in the active view)
+  // ── Build the rolling 7-day PB window ──────────────────────────
+  // Start from existing events still inside the window, then layer this run's
+  // new PBs on top. New PBs override any existing event for the same lifter
+  // (a fresh PB replaces their older one — the common, expected case).
+  const cutoff = now - WINDOW_DAYS * DAY_MS;
+  const survivors = (prev.pbEvents || []).filter((ev) => {
+    const t = ev.date ? new Date(ev.date).getTime() : 0;
+    return t >= cutoff;
+  });
+
+  const bySlug = new Map();
+  for (const ev of survivors) bySlug.set(ev.slug, ev);   // keep recent
+  for (const ev of newPbEvents) bySlug.set(ev.slug, ev); // new overrides
+
+  const pbEvents = [...bySlug.values()];
+
+  // (Re)compute rank movement for every event in the window against the
+  // 7-day baseline, so "Up N places" reflects the whole week, not one run.
   for (const ev of pbEvents) {
     const before = prevRankActive[ev.slug];
     const after = newRankActive[ev.slug];
     if (before != null && after != null && after < before) {
       ev.placesUp = before - after;
+    } else {
+      delete ev.placesUp;
     }
   }
 
   const changes = {
-    generated: new Date().toISOString(),
-    prevRankActive,   // last week's ranks — board diffs current vs these
+    generated: nowISO,
+    baselineDate,         // when the current 7-day rank baseline was set
+    prevRankActive,       // ranks as of baselineDate — board diffs current vs these
     prevRankAll,
-    pbEvents,
+    pbEvents,             // rolling 7-day window of PBs
   };
 
   writeFileSync(DATA_PATH, serialiseData(updated), "utf8");
