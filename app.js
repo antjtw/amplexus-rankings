@@ -415,7 +415,7 @@
     const updated = lastUpdatedText();
     return `
       ${updated ? `<div class="dyn-updated">${updated}</div>` : ""}
-      ${dynFooterHTML()}`;
+      <div class="dyn-exit-hint">tap to exit</div>`;
   }
 
   function renderSlide() {
