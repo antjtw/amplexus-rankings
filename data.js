@@ -139,7 +139,7 @@ const LIFTERS = [
     name: "Kai Richardson",
     slug: "kairichardson",
     ig: "koach_kai",
-    squat: 215, bench: 145, deadlift: 300, total: 637.5, dots: 450.21,
+    squat: 215, bench: 145, deadlift: 300, total: 642.5, dots: 450.21,
     fed: "EPA", equip: "Raw", bodyweight: "76.9",
   },
   {
