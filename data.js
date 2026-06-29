@@ -136,14 +136,6 @@ const LIFTERS = [
     fed: "WRPF-UK", equip: "Raw", bodyweight: "115.4",
   },
   {
-    name: "Kai Richardson",
-    slug: "kairichardson",
-    ig: "koach_kai",
-    squat: 215, bench: 145, deadlift: 300, total: 637.5, dots: 450.21,
-    fed: "EPA", equip: "Raw", bodyweight: "76.9",
-    legacy: true,
-  },
-  {
     name: "Dr. Pete King",
     slug: "peterking1",
     ig: "kingpete__",
@@ -187,6 +179,14 @@ const LIFTERS = [
   },
 
   // ── LEGACY MEMBERS ──────────────────────────────────────────
+  {
+    name: "Kai Richardson",
+    slug: "kairichardson",
+    ig: "koach_kai",
+    squat: 215, bench: 145, deadlift: 300, total: 642.5, dots: 450.21,
+    fed: "EPA", equip: "Raw", bodyweight: "76.9",
+    legacy: true,
+  },
   {
     name: "Leo Hannan",
     slug: "leohannan",
