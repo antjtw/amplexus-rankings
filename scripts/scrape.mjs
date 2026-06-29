@@ -54,7 +54,9 @@ function loadChanges() {
     const c = fn();
     if (c && typeof c === "object") return c;
   } catch (_) { /* fall through to default */ }
-  return { generated: null, baselineDate: null, prevRankActive: {}, prevRankAll: {}, pbEvents: [] };
+  return { generated: null, baselineDate: null, prevRankActive: {}, prevRankAll: {},
+           curRankActive: {}, curRankAll: {}, rosterActive: [], rosterAll: [],
+           arrivals: [], departures: [], pbEvents: [] };
 }
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -189,9 +191,13 @@ function serialiseChanges(changes) {
 // Written automatically by scripts/scrape.mjs on each daily run.
 // generated:      ISO timestamp of the run that produced this file.
 // baselineDate:   when the current rank baseline was set (refreshed every 7 days).
-// prevRankActive / prevRankAll: slug -> rank as of baselineDate, in each view.
-//   Position arrows compare current rank against these, so movement reflects
-//   the whole week rather than just the last run.
+// prevRankActive / prevRankAll: slug -> rank as of baselineDate, RE-RANKED over
+//   the current roster so arrivals/departures don't create phantom arrows.
+//   Position arrows compare current rank against these, so only genuine
+//   lifting-driven movement shows — roster logistics net to zero.
+// rosterActive / rosterAll: the slugs present at this run (roster-change basis).
+// arrivals / departures:    who joined / left since the baseline (stored for
+//   possible future use; not displayed). Arrivals show as NEW, not as movers.
 // pbEvents:       personal-best improvements from the last 7 days, each stamped
 //   with the date it hit the board. Shown as callout cards in dynamic mode,
 //   ageing out after 7 days. A new PB for a lifter overrides their older one.
@@ -204,6 +210,23 @@ const CHANGES = ${JSON.stringify(changes, null, 2)};
 const WINDOW_DAYS = 7;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+// Re-rank a stored baseline (slug -> rank) over the CURRENT set of slugs.
+// Keeps the baseline's relative ORDER, drops anyone no longer present, and
+// renumbers 1..N. This neutralises roster changes: a lifter who leaves (or is
+// legacy'd) no longer occupies a slot, so those who were below them are NOT
+// credited with an upward move. Arrivals simply have no baseline entry (they
+// show as NEW, not as a mover). Only genuine, lifting-driven reordering within
+// the shared roster produces a rank delta.
+function reRankOverRoster(baselineMap, currentSlugs) {
+  const present = baselineMap
+    ? Object.keys(baselineMap).filter((slug) => currentSlugs.has(slug))
+    : [];
+  present.sort((a, b) => baselineMap[a] - baselineMap[b]); // keep old order
+  const out = {};
+  present.forEach((slug, i) => { out[slug] = i + 1; });
+  return out;
+}
+
 async function main() {
   const lifters = loadLifters();
   console.log(`Loaded ${lifters.length} lifters from data.js`);
@@ -212,27 +235,44 @@ async function main() {
   const now = new Date();
   const nowISO = now.toISOString();
 
+  // Current rosters (sets of slugs) for the active and legacy-inclusive views
+  const activeSlugs = new Set(lifters.filter((l) => !l.legacy).map((l) => l.slug));
+  const allSlugs = new Set(lifters.map((l) => l.slug));
+
+  // Arrivals / departures vs the baseline roster (active view), for the record.
+  // Not displayed anywhere yet, but stored in changes.js for possible future use.
+  const baselineRoster = new Set(prev.rosterActive || []);
+  const arrivals = [...activeSlugs].filter((s) => baselineRoster.size && !baselineRoster.has(s));
+  const departures = [...baselineRoster].filter((s) => !activeSlugs.has(s));
+
   // Rank baseline: arrows compare CURRENT rank against a baseline that is
-  // refreshed only once every 7 days, so movement reflects the whole week
-  // rather than just the last run. If the stored baseline is missing or older
-  // than the window, we re-snapshot it from the pre-update ranks now.
+  // refreshed once every 7 days, so movement reflects the whole week rather
+  // than just the last run. If the stored baseline is missing or older than the
+  // window, we re-snapshot from today's pre-update ranks.
   const baselineAge = prev.baselineDate ? (now - new Date(prev.baselineDate)) : Infinity;
   const baselineExpired = baselineAge >= WINDOW_DAYS * DAY_MS;
 
   const preRankActive = rankMap(lifters.filter((l) => !l.legacy));
   const preRankAll = rankMap(lifters);
 
-  let baselineDate, prevRankActive, prevRankAll;
+  let baselineDate, prevRankActive, prevRankAll, rosterActive, rosterAll;
   if (baselineExpired || !prev.prevRankActive || Object.keys(prev.prevRankActive).length === 0) {
-    // Start a fresh 7-day window from today's pre-update ranks
+    // Start a fresh 7-day window from today's pre-update ranks and roster
     baselineDate = nowISO;
     prevRankActive = preRankActive;
     prevRankAll = preRankAll;
+    rosterActive = [...activeSlugs];
+    rosterAll = [...allSlugs];
   } else {
-    // Keep the existing baseline so arrows keep measuring against it all week
+    // Keep the existing baseline, but RE-RANK it over today's roster so that
+    // anyone who left/joined since the baseline doesn't create phantom arrows.
+    // The roster snapshot rolls forward to today's, so a departure is absorbed
+    // once and never re-counted.
     baselineDate = prev.baselineDate;
-    prevRankActive = prev.prevRankActive;
-    prevRankAll = prev.prevRankAll;
+    prevRankActive = reRankOverRoster(prev.prevRankActive, activeSlugs);
+    prevRankAll = reRankOverRoster(prev.prevRankAll, allSlugs);
+    rosterActive = [...activeSlugs];
+    rosterAll = [...allSlugs];
   }
 
   const updated = [];
@@ -305,6 +345,25 @@ async function main() {
   const newRankActive = rankMap(updated.filter((l) => !l.legacy));
   const newRankAll = rankMap(updated);
 
+  // ── Arrow ranks: compare like-for-like over the SHARED roster ──
+  // To stop arrivals from pushing others "down" (and departures pulling others
+  // "up"), both the baseline and the current ranks used for arrows are computed
+  // over only the lifters present in BOTH. An arrival isn't in the baseline, so
+  // it's excluded here and shows as NEW; a departure isn't current, so it's
+  // gone from both. The result: arrows reflect only lifting-driven reordering.
+  const sharedActive = new Set(
+    Object.keys(prevRankActive).filter((s) => activeSlugs.has(s))
+  );
+  const sharedAll = new Set(
+    Object.keys(prevRankAll).filter((s) => allSlugs.has(s))
+  );
+  // Re-rank current order over the shared set
+  const curRankActive = reRankOverRoster(newRankActive, sharedActive);
+  const curRankAll = reRankOverRoster(newRankAll, sharedAll);
+  // And re-rank the (already roster-trimmed) baseline over the same shared set
+  const arrowPrevActive = reRankOverRoster(prevRankActive, sharedActive);
+  const arrowPrevAll = reRankOverRoster(prevRankAll, sharedAll);
+
   // ── Build the rolling 7-day PB window ──────────────────────────
   // Start from existing events still inside the window, then layer this run's
   // new PBs on top. New PBs override any existing event for the same lifter
@@ -321,11 +380,11 @@ async function main() {
 
   const pbEvents = [...bySlug.values()];
 
-  // (Re)compute rank movement for every event in the window against the
-  // 7-day baseline, so "Up N places" reflects the whole week, not one run.
+  // (Re)compute rank movement for every event in the window over the SHARED
+  // roster, so "Up N places" reflects genuine lifting movement, not roster shifts.
   for (const ev of pbEvents) {
-    const before = prevRankActive[ev.slug];
-    const after = newRankActive[ev.slug];
+    const before = arrowPrevActive[ev.slug];
+    const after = curRankActive[ev.slug];
     if (before != null && after != null && after < before) {
       ev.placesUp = before - after;
     } else {
@@ -336,8 +395,14 @@ async function main() {
   const changes = {
     generated: nowISO,
     baselineDate,         // when the current 7-day rank baseline was set
-    prevRankActive,       // ranks as of baselineDate — board diffs current vs these
-    prevRankAll,
+    prevRankActive: arrowPrevActive,  // arrow baseline, ranked over shared roster
+    prevRankAll: arrowPrevAll,
+    curRankActive,        // current ranks over shared roster (arrow compares to prev)
+    curRankAll,
+    rosterActive,         // active slugs as of this run (for roster-change detection)
+    rosterAll,
+    arrivals,             // active slugs new since baseline (shown as NEW, not movers)
+    departures,           // slugs that left/were legacy'd since the baseline
     pbEvents,             // rolling 7-day window of PBs
   };
 

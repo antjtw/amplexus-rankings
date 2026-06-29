@@ -239,27 +239,36 @@
 
   // Weekly change data (from changes.js). Falls back gracefully if absent.
   const CH = (typeof CHANGES !== "undefined" && CHANGES) ? CHANGES : {
-    prevRankActive: {}, prevRankAll: {}, pbEvents: []
+    prevRankActive: {}, prevRankAll: {}, curRankActive: {}, curRankAll: {}, pbEvents: []
   };
 
   // Movement arrow for a lifter at a given current rank, relative to last week.
   // Uses the previous-rank map for whichever view is active. Returns HTML.
   function movementArrow(slug, currentRank) {
+    // Arrows compare the scraper's shared-roster ranks: curRank vs prevRank,
+    // both computed over only the lifters present at baseline AND now. This
+    // means a lifter who joined or left since the baseline never shifts anyone
+    // else's arrow — only genuine lifting-driven reordering shows movement.
     const prevMap = showLegacy ? CH.prevRankAll : CH.prevRankActive;
+    const curMap  = showLegacy ? CH.curRankAll  : CH.curRankActive;
     const prev = prevMap ? prevMap[slug] : undefined;
+    const cur  = curMap  ? curMap[slug]  : undefined;
+
     if (prev == null) {
-      // No previous rank: brand-new entry (only flag if we have a baseline)
+      // Not in the baseline: a new arrival. Flag NEW only if a baseline exists.
       const hasBaseline = prevMap && Object.keys(prevMap).length > 0;
       return hasBaseline
         ? `<span class="move move-new" title="New entry">NEW</span>`
         : "";
     }
-    const delta = prev - currentRank; // positive = moved up
+    if (cur == null) return ""; // shouldn't happen, but fail quiet
+
+    const delta = prev - cur; // positive = moved up
     if (delta > 0) {
-      return `<span class="move move-up" title="Up ${delta} from last week">▲<span class="move-num">${delta}</span></span>`;
+      return `<span class="move move-up" title="Up ${delta} this week">▲<span class="move-num">${delta}</span></span>`;
     }
     if (delta < 0) {
-      return `<span class="move move-down" title="Down ${-delta} from last week">▼<span class="move-num">${-delta}</span></span>`;
+      return `<span class="move move-down" title="Down ${-delta} this week">▼<span class="move-num">${-delta}</span></span>`;
     }
     return `<span class="move move-same" title="No change">–</span>`;
   }
@@ -533,7 +542,7 @@
     return `
     <div class="dyn-row" data-rank="${rank}">
       <div class="dyn-bar" style="width:${width}%"></div>
-      <span class="dyn-rank ${rankClass}">${rank}</span>
+      <span class="dyn-rank ${rankClass}">${rank}${movementArrow(lifter.slug, rank)}</span>
       <span class="dyn-name">${lifter.name}${legacyTag}</span>
       <span class="dyn-stats">
         ${stat("SQ", lifter.squat)}
